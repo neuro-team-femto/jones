@@ -1,0 +1,25 @@
+body {
+    background-color: #f1f1f1;
+    font-family: Verdana, Geneva, Tahoma, sans-serif
+
+}
+
+.jspsych-content {
+    width: 600px;
+    padding: 20px 30px;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: white;
+}
+
+.strong {
+    font-weight: bold;
+}
+
+.choice {
+    width: 250px;
+    margin: -16px auto 0;
+    display: flex;
+    justify-content: space-between;
+}
