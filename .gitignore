@@ -1,7 +1,7 @@
 sounds
 state
 revcor
-public/scripts
+public/scripts/main.js
 *.log
 .DS_Store
 .vscode

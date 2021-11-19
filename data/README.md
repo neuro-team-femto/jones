@@ -28,6 +28,10 @@ For convenience you may in fact declare several `participants` files: any text f
 ```json
 {
     "title": "The smile of sounds",
+    "collect": "Please fill in the following information:",
+    "collectAge": "age",
+    "collectSex": "sex (f/m)",
+    "collectButton": "Continue",
     "introduction": "In this experiment, you will hear examples of pronunciations of the sound /a/, and we ask you to judge which one you think was pronounced with the most smile.",
     "pause": "Let's pause for a few seconds",
     "pauseOver": "The pause is over, you can resume the experiment",

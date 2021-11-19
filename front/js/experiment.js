@@ -29,6 +29,32 @@ export default (state, ws) => {
     } else {
         // does the participant start for the first time?
         if(previouslyDoneLength == 0) {
+            // form page
+            timeline.push({
+                type: jsPsychSurveyHtmlForm,
+                preamble: `<p>${wording.collect}</p>`,
+                html: `<p>
+                    <fieldset>
+                        <label>${wording.collectAge}</label>
+                        <input id="age" name="age" type="text" minlength="2" maxlength="3" required />
+                    </fieldset>
+                    <fieldset>
+                        <label>${wording.collectSex}</label>
+                        <input name="sex" type="text" minlength="1" maxlength="1" required />
+                    </fieldset>
+                </p>`,
+                autofocus: "age",
+                button_label: wording.collectButton,
+                on_finish: (data) => {
+                    console.log(data);
+                    // ws.send(
+                    //     JSON.stringify({
+                    //         kind: "collect",
+                    //         payload: JSON.stringify(data.response),
+                    //     })
+                    // );
+                }
+            });
             // intro page
             timeline.push({
                 type: jsPsychHtmlKeyboardResponse,
@@ -52,7 +78,7 @@ export default (state, ws) => {
                     stimulus: `<p>${wording.pause}</p>`,
                     prompt: "",
                     choices: "NO_KEYS",
-                    trial_duration: 6000
+                    trial_duration: 4000
                 },
                 {
                     type: jsPsychHtmlKeyboardResponse,
