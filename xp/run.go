@@ -22,7 +22,7 @@ func IsValid(experimentId, participantId string) bool {
 
 	configPath := "data/" + experimentId + "/config/"
 	// check config exisis
-	if !helpers.PathExists(configPath + "xp.json") {
+	if !helpers.PathExists(configPath + "settings.json") {
 		return false
 	}
 

@@ -9,29 +9,21 @@ const pairs = (arr) =>
 
 // build and run experiment
 export default (state, ws) => {
-    const { experiment: xp, participant: { sounds: soundsStr } } = state;
+    const { settings, wording, participant: { sounds: soundsStr } } = state;
     const sounds = soundsStr.split(',');
-
-    const todoLength = sounds.length / 2;
-    const totalLength = xp.blockCount * xp.trialsPerBlock;
-    const previouslyDoneLength = totalLength - todoLength;
-
-
     const stimuli = pairs(sounds, 2);
 
-    const jsPsych = initJsPsych({
-        on_finish: function() {
-            jsPsych.data.displayData();
-        }
-    });
+    const remainingLength = sounds.length / 2;
+    const totalLength = settings.blockCount * settings.trialsPerBlock;
+    const previouslyDoneLength = totalLength - remainingLength; // not 0 if user reconnects (page refresh for instance) 
 
     const timeline = [];
 
     // experiment has already be fully run by this participant
-    if(todoLength === 0) {
+    if(remainingLength === 0) {
         timeline.push({
             type: jsPsychHtmlKeyboardResponse,
-            stimulus: `<h3>Expérience déjà effectuée</h3>`,
+            stimulus: `<h3>${wording.closed}</h3>`,
             choices: "NO_KEYS"
         });
     } else {
@@ -40,15 +32,15 @@ export default (state, ws) => {
             // intro page
             timeline.push({
                 type: jsPsychHtmlKeyboardResponse,
-                stimulus: `<p>${xp.introduction}</p>`,
-                prompt: "<p><span class='strong'>[espace]</span> pour continuer</p>",
+                stimulus: `<p>${wording.introduction}</p>`,
+                prompt: `<p><span class='strong'>[${wording.space}]</span> ${wording.next}</p>`,
                 choices: " "
             });
         } else {
             timeline.push({
                 type: jsPsychHtmlKeyboardResponse,
-                stimulus: `<p>Reprise de l'expérience</p>`,
-                prompt: "<p><span class='strong'>[espace]</span> pour continuer</p>",
+                stimulus: `<p>${wording.resume}</p>`,
+                prompt: `<p><span class='strong'>[${wording.space}]</span> ${wording.next}</p>`,
                 choices: " "
             });
         }
@@ -57,49 +49,50 @@ export default (state, ws) => {
             timeline: [
                 {
                     type: jsPsychHtmlKeyboardResponse,
-                    stimulus: "<p>Nous vous proposons une pause de quelques secondes.</p>",
+                    stimulus: `<p>${wording.pause}</p>`,
                     prompt: "",
                     choices: "NO_KEYS",
                     trial_duration: 6000
                 },
                 {
                     type: jsPsychHtmlKeyboardResponse,
-                    stimulus: "<p>La pause est terminée. Vous pouvez reprendre l'expérience.</p>",
-                    prompt: "<p><span class='strong'>[espace]</span> pour continuer</p>",
+                    stimulus: `<p>${wording.pauseOver}</p>`,
+                    prompt: `<p><span class='strong'>[${wording.space}]</span> ${wording.next}</p>`,
                     choices: " ",
                 }
             ],
             conditional_function: function(){
                 const done = jsPsych.data.get().filter({answered: true}).count() + previouslyDoneLength;
-                const blockEnd = (done % xp.trialsPerBlock) === 0;
+                const blockEnd = (done % settings.trialsPerBlock) === 0;
                 return blockEnd;
             }
         }
 
         timeline.push({
-            prompt: `<p>[espace] <span style='font-weight:bold'>écoute ${xp.trialSoundLabel} 1 & 2</span></p>
-            <p>${xp.trialQuestion}</p>
+            prompt: `<p>[${wording.space}] <span style='font-weight:bold'> ${wording.stimuli}</span></p>
+            <p>${wording.question}</p>
             <div class='choice'>
-                <div>[f] ${xp.trialSoundLabel} 1</div>
-                <div>${xp.trialSoundLabel} 2 [j]</div>
+                <div>[f] ${wording.sound1}</div>
+                <div>${wording.sound2} [j]</div>
             </div>`,
             timeline: [
                 {
                     type: jsPsychPreload,
                     audio: () => {
-                        [`sounds/${jsPsych.timelineVariable('s1')}`, `sounds/${jsPsych.timelineVariable('s2')}`]
+                        return [`sounds/${jsPsych.timelineVariable('s1')}`, `sounds/${jsPsych.timelineVariable('s2')}`]
                     },
-                    show_detailed_errors: true
+                    show_progress_bar: false,
+                    post_trial_gap: 200
                 },
                 {
                     type: jsPsychHtmlKeyboardResponse,
                     stimulus: '',
                     choices: " ",
-                    prompt: `<p><span style='font-weight:bold'>[espace]</span> écoute ${xp.trialSoundLabel} 1 & 2</p>
-                    <p>${xp.trialQuestion}</p>
+                    prompt: `<p><span style='font-weight:bold'>[${wording.space}]</span> ${wording.stimuli}</p>
+                    <p>${wording.question}</p>
                     <div class='choice'>
-                        <div>[f] ${xp.trialSoundLabel} 1</div>
-                        <div>${xp.trialSoundLabel} 2 [j]</div>
+                        <div>[f] ${wording.sound1}</div>
+                        <div>${wording.sound2} [j]</div>
                     </div>`,
                 },
                 {
@@ -126,11 +119,11 @@ export default (state, ws) => {
                     type: jsPsychHtmlKeyboardResponse,
                     stimulus: '',
                     choices: ["f", "j"],
-                    prompt: `<p>[espace] écoute ${xp.trialSoundLabel} 1 & 2</p>
-                    <p>${xp.trialQuestion}</p>
+                    prompt: `<p>[${wording.space}] ${wording.stimuli}</p>
+                    <p>${wording.question}</p>
                     <div class='choice'>
-                        <div><span class='strong'>[f]</span> ${xp.trialSoundLabel} 1</div>
-                        <div>${xp.trialSoundLabel} 2 <span class='strong'>[j]</span></div>
+                        <div><span class='strong'>[f]</span> ${wording.sound1}</div>
+                        <div>${wording.sound2} <span class='strong'>[j]</span></div>
                     </div>`,
                     data: {
                         answered: true
@@ -153,8 +146,8 @@ export default (state, ws) => {
 
         timeline.push({
             type: jsPsychHtmlKeyboardResponse,
-            stimulus: `<h3>Fin de l'expérience</h3>`,
-            prompt: "<p>Merci pour votre participation/p>",
+            stimulus: `<h3>${wording.end}</h3>`,
+            prompt: `<p>${wording.thanks}</p>`,
             choices: "NO_KEYS",
             on_start: function() {
                 console.log('The experiment is over');
@@ -162,5 +155,10 @@ export default (state, ws) => {
         });
     }
     
+    const jsPsych = initJsPsych({
+        on_finish: function() {
+            jsPsych.data.displayData();
+        }
+    });
     jsPsych.run(timeline);
 }

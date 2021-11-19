@@ -3,29 +3,34 @@ package xp
 import (
 	"encoding/json"
 	"io/ioutil"
+
+	"github.com/creamlab/revcor/helpers"
 )
 
-type Experiment struct {
-	Id              string `json:"id"`
-	DisplayName     string `json:"displayName"`
-	Introduction    string `json:"introduction"`
-	TrialQuestion   string `json:"trialQuestion"`
-	TrialSoundLabel string `json:"trialSoundLabel"`
-	BlockCount      int    `json:"blockCount"`
-	TrialsPerBlock  int    `json:"trialsPerBlock"`
+type ExperimentSettings struct {
+	Id             string `json:"id"`
+	BlockCount     int    `json:"blockCount"`
+	TrialsPerBlock int    `json:"trialsPerBlock"`
 }
 
-func LoadExperiment(experimentId string) (e Experiment, err error) {
-	configPath := "data/" + experimentId + "/config/xp.json"
-	file, err := ioutil.ReadFile(configPath)
+type experimentWording interface{}
+
+func GetExperimentSettings(experimentId string) (e ExperimentSettings, err error) {
+	settingsPath := "data/" + experimentId + "/config/settings.json"
+	file, err := ioutil.ReadFile(settingsPath)
 	if err != nil {
 		return
 	}
 
-	e = Experiment{}
+	e = ExperimentSettings{}
 	if err = json.Unmarshal([]byte(file), &e); err != nil {
 		return
 	}
 	e.Id = experimentId
 	return
+}
+
+func GetExperimentWordingString(experimentId string) (json string, err error) {
+	wordingPath := "data/" + experimentId + "/config/wording.json"
+	return helpers.ReadTrimJSON(wordingPath)
 }

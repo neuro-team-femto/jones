@@ -10,20 +10,27 @@ import (
 
 var (
 	developmentMode bool = false
+	cmdBuildMode    bool = false
 )
 
 func init() {
 	if os.Getenv("APP_ENV") == "DEV" {
 		developmentMode = true
 	}
+	if os.Getenv("APP_ENV") == "BUILD_FRONT" {
+		cmdBuildMode = true
+	}
 }
 
 // API
-
 func Build() {
-	// only build in certain conditions (= not when launching ducksoup in production)
+	if !developmentMode && !cmdBuildMode {
+		return
+	}
+
+	// build options for prod
 	buildOptions := api.BuildOptions{
-		EntryPoints:       []string{"front/src/main.js"},
+		EntryPoints:       []string{"front/js/main.js"},
 		Bundle:            true,
 		MinifyWhitespace:  true,
 		MinifyIdentifiers: true,
@@ -34,10 +41,14 @@ func Build() {
 			{api.EngineSafari, "11"},
 			{api.EngineEdge, "79"},
 		},
-		Outdir: "front/public/scripts",
+		Outdir: "public/scripts",
 		Write:  true,
 	}
+
 	if developmentMode {
+		buildOptions.MinifyWhitespace = false
+		buildOptions.MinifyIdentifiers = false
+		buildOptions.MinifySyntax = false
 		buildOptions.Watch = &api.WatchMode{
 			OnRebuild: func(result api.BuildResult) {
 				if len(result.Errors) > 0 {
@@ -57,6 +68,7 @@ func Build() {
 			},
 		}
 	}
+
 	build := api.Build(buildOptions)
 
 	if len(build.Errors) > 0 {

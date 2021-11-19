@@ -13,6 +13,10 @@ body {
     background-color: white;
 }
 
+.jspsych-content:empty {
+    display: none;
+}
+
 .strong {
     font-weight: bold;
 }

@@ -50,18 +50,26 @@ func RunServer(conn *websocket.Conn) {
 		return
 	}
 
-	e, err := xp.LoadExperiment(joinPayload.ExperimentId)
+	es, err := xp.GetExperimentSettings(joinPayload.ExperimentId)
 	if err != nil {
 		return
 	}
 
-	p, err := xp.LoadParticipant(e, joinPayload.ParticipantId)
+	ew, err := xp.GetExperimentWordingString(joinPayload.ExperimentId)
 	if err != nil {
 		return
 	}
 
+	p, err := xp.LoadParticipant(es, joinPayload.ParticipantId)
+	if err != nil {
+		return
+	}
+
+	// caution: es/p are structs that will be automatically deserialized as JS objects client side
+	// ew is a string that remains to be parsed client-side (done this way not to declare wordings.json structure)
 	initPayload := outData{
-		"experiment":  e,
+		"settings":    es,
+		"wording":     ew,
 		"participant": p,
 	}
 
@@ -83,7 +91,7 @@ func RunServer(conn *websocket.Conn) {
 				sendAndLogError(conn, err, "error-read-result")
 				return
 			}
-			xp.UpdateParticipantState(e, p, result.Chosen, result.Dismissed)
+			xp.UpdateParticipantState(es, p, result.Chosen, result.Dismissed)
 		}
 	}
 }

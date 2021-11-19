@@ -47,7 +47,7 @@ func init() {
 	// web prefix, for instance "/path" if DuckSoup is reachable at https://host/path
 	webPrefix = helpers.Getenv("APP_WEB_PREFIX", "")
 
-	indexTemplate = template.Must(template.ParseFiles("front/templates/index.html.gtpl"))
+	indexTemplate = template.Must(template.ParseFiles("public/templates/index.html.gtpl"))
 
 	// create state folder
 	err := helpers.EnsureFolder("state")
@@ -110,16 +110,12 @@ func xpHandler(w http.ResponseWriter, r *http.Request) {
 	participantId := vars["participantId"]
 
 	if xp.IsValid(experimentId, participantId) {
-		e, err := xp.LoadExperiment(experimentId)
-		if err == nil {
-			indexTemplate.Execute(w, templateData{
-				"webPrefix":     webPrefix,
-				"experimentId":  experimentId,
-				"participantId": participantId,
-				"title":         e.DisplayName,
-			})
-			return
-		}
+		indexTemplate.Execute(w, templateData{
+			"webPrefix":     webPrefix,
+			"experimentId":  experimentId,
+			"participantId": participantId,
+		})
+		return
 	}
 	w.WriteHeader(http.StatusNotFound)
 }
@@ -130,8 +126,8 @@ func runServer() {
 	router.HandleFunc(webPrefix+"/ws", websocketHandler)
 
 	// serve assets (js & css) under front/public
-	router.PathPrefix(webPrefix + "/scripts/").Handler(http.StripPrefix(webPrefix+"/scripts/", http.FileServer(http.Dir("./front/public/scripts/"))))
-	router.PathPrefix(webPrefix + "/styles/").Handler(http.StripPrefix(webPrefix+"/styles/", http.FileServer(http.Dir("./front/public/styles/"))))
+	router.PathPrefix(webPrefix + "/scripts/").Handler(http.StripPrefix(webPrefix+"/scripts/", http.FileServer(http.Dir("./public/scripts/"))))
+	router.PathPrefix(webPrefix + "/styles/").Handler(http.StripPrefix(webPrefix+"/styles/", http.FileServer(http.Dir("./public/styles/"))))
 	// serve assets under data/{experimentId]/sounds, with rewrite
 	router.
 		PathPrefix(webPrefix + "/xp/{experimentId:[a-zA-Z0-9-_]+}/sounds/{file:.*}").
@@ -162,9 +158,10 @@ func runServer() {
 }
 
 func main() {
-	// always build front (in watch mode or not, depending on APP_ENV value, see front/build.go)
 	front.Build()
 
-	// launch http (with websockets) server
-	runServer()
+	if os.Getenv("APP_ENV") != "BUILD_FRONT" {
+		// launch http (with websockets) server
+		runServer()
+	}
 }

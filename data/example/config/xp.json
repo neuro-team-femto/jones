@@ -1,8 +1,0 @@
-{
-    "displayName": "Le sourire des sons",
-    "introduction": "Dans cette expérience, vous allez entendre des exemples de prononciations du son /a/, et nous vous demandons de juger laquelle vous semble avoir été prononcée avec le plus de sourire.",
-    "trialQuestion": "Quelle prononciation est la plus souriante ?",
-    "trialSoundLabel": "voix",
-    "blockCount": 6,
-    "trialsPerBlock": 3
-}

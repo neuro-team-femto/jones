@@ -9,11 +9,11 @@ const looseJSONParse = (str) => {
 };
 
 const init = () => {
-    console.log("[revcor] version 0.1");
+    console.log("[revcor] version 0.2");
 
     const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
     const pathPrefixhMatch = /(.*)xp/.exec(window.location.pathname);
-    // depending on DS_WEB_PREFIX, signaling endpoint may be located at /ws or /prefix/ws
+    // depending on APP_WEB_PREFIX, signaling endpoint may be located at /ws or /prefix/ws
     const pathPrefix = pathPrefixhMatch[1];
     const signalingUrl = `${wsProtocol}://${window.location.host}${pathPrefix}ws`;
     const ws = new WebSocket(signalingUrl);
@@ -30,8 +30,9 @@ const init = () => {
 
     ws.onmessage = async (event) => {
         let message = looseJSONParse(event.data);
-
+        
         if (message.kind === "init") {
+            message.payload.wording = looseJSONParse(message.payload.wording);
             runExperiment(message.payload, ws);
         }
     };

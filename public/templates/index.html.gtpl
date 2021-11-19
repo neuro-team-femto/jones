@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>{{.title}}</title>
+    <title></title>
     <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
     <script src="{{.webPrefix}}/scripts/jspsych/jspsych.js"></script>
     <script src="{{.webPrefix}}/scripts/jspsych/plugin-preload.js"></script>

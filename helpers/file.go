@@ -17,7 +17,7 @@ func PathExists(path string) bool {
 
 func EnsureFolder(path string) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return os.MkdirAll(path, 0644)
+		return os.MkdirAll(path, 0775)
 	}
 	return nil
 }
@@ -46,6 +46,21 @@ func ReadFileLines(path string) (lines []string, err error) {
 
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
+	}
+	return
+}
+
+func ReadTrimJSON(path string) (json string, err error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		json += strings.TrimSpace(scanner.Text())
 	}
 	return
 }

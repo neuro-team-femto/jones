@@ -8,27 +8,45 @@ To create a new experiment, follow these instructions:
 * an `experiment_3/config` folder
 * an `experiment_3/sounds` folder (to hold *.wav files used during the experiment)
 * an `experiment_3/results` folder (let empty at start, trials will populate it with data)
-* an `experiment_3/config/xp.json` JSON file (see more below)
+* an `experiment_3/config/settings.json` JSON file (see more below)
+* an `experiment_3/config/wording.json` JSON file (see more below)
 * an `experiment_3/config/participants.txt` file containing one participant ID per line (valid IDs are also made of [a-zA-Z0-9-_])
 
 For convenience you may in fact declare several `participants` files: any text file containing the string `participants` (in the `experiment_3/config/` folder) is considered a valid participants dictionnary.
 
-3. The `xp.json` file configures the experiment and must contain the following properties:
+3. The `settings.json` file configures the experiment and needs the following properties:
 
 ```json
 {
-    "displayName": "My third experiment",
-    "introduction": "In this experiment, you will hear examples of pronunciations of the sound /a/, and we ask you to judge which one you think was pronounced with the most smile.",
-    "trialQuestion": "Which pronunciation is the most smiling?",
-    "trialSoundLabel": "voice",
     "blockCount": 4,
     "trialsPerBlock": 10,
 }
 ```
 
-4. Put wav files to be tested in `experiment_3/sounds` (with a `.wav` file extension)
+4. The `wording.json` file configures messages displayed on screens and needs the following properties:
 
-5. Here is an example `participants` file, defining 4 participant IDs:
+```json
+{
+    "title": "The smile of sounds",
+    "introduction": "In this experiment, you will hear examples of pronunciations of the sound /a/, and we ask you to judge which one you think was pronounced with the most smile.",
+    "pause": "Let's pause for a few seconds",
+    "pauseOver": "The pause is over, you can resume the experiment",
+    "resume": "Resuming",
+    "end": "End of the experiment",
+    "thanks": "Thanks for your participation",
+    "closed": "Experiment already done",
+    "stimuli": "listening to voices 1 & 2",
+    "question": "Which pronunciation is the most smiling?",
+    "next": "next",
+    "sound1": "voice 1",
+    "sound2": "voice 2",
+    "space": "space"
+}
+```
+
+5. Put wav files to be tested in `experiment_3/sounds` (with a `.wav` file extension)
+
+6. Here is an example `participants` file, defining 4 participant IDs:
 ```text
 b0c410eacc023237ca8d9cfea109ab70
 d465f071d45d8a216b42d6411e865bcf
