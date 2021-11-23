@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"crypto/subtle"
 	"html/template"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -15,18 +16,19 @@ import (
 	"github.com/creamlab/revcor/xp"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
-	"github.com/rs/zerolog/log"
 )
 
 var (
 	port           string
 	allowedOrigins = []string{}
 	webPrefix      string
+	adminLogin     string
+	adminPassword  string
 	indexTemplate  *template.Template
 	upgrader       = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			origin := r.Header.Get("Origin")
-			log.Info().Msgf("[server] ws upgrade from origin: %v", origin)
+			log.Printf("[server] ws upgrade from origin: %v\n", origin)
 			return helpers.Contains(allowedOrigins, origin)
 		},
 	}
@@ -46,17 +48,19 @@ func init() {
 
 	// web prefix, for instance "/path" if DuckSoup is reachable at https://host/path
 	webPrefix = helpers.Getenv("APP_WEB_PREFIX", "")
+	adminLogin = helpers.Getenv("APP_ADMIN_LOGIN", "")
+	adminPassword = helpers.Getenv("APP_ADMIN_PASSWORD", "")
 
 	indexTemplate = template.Must(template.ParseFiles("public/templates/index.html.gtpl"))
 
 	// create state folder
 	err := helpers.EnsureFolder("state")
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Fatal(err)
 	}
 
 	// log
-	log.Info().Msgf("[server] allowed ws origins: %v", allowedOrigins)
+	log.Printf("[server] allowed ws origins: %v\n", allowedOrigins)
 }
 
 // handle incoming websockets
@@ -64,11 +68,11 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 	// upgrade HTTP request to Websocket
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Error().Err(err).Msg("[server] can't upgrade ws")
+		log.Printf("[error] can't upgrade ws: %v\n", err)
 		return
 	}
 
-	ws.RunServer(conn)
+	ws.Run(conn)
 }
 
 func basicAuthWith(refLogin, refPassword string) mux.MiddlewareFunc {
@@ -122,22 +126,35 @@ func xpHandler(w http.ResponseWriter, r *http.Request) {
 
 func runServer() {
 	router := mux.NewRouter()
-	// websocket handler
-	router.HandleFunc(webPrefix+"/ws", websocketHandler)
 
+	// public router with no auth
+	publicRouter := router.PathPrefix(webPrefix).Subrouter()
+	// websocket handler
+	publicRouter.HandleFunc("/ws", websocketHandler)
 	// serve assets (js & css) under front/public
-	router.PathPrefix(webPrefix + "/scripts/").Handler(http.StripPrefix(webPrefix+"/scripts/", http.FileServer(http.Dir("./public/scripts/"))))
-	router.PathPrefix(webPrefix + "/styles/").Handler(http.StripPrefix(webPrefix+"/styles/", http.FileServer(http.Dir("./public/styles/"))))
+	publicRouter.PathPrefix("/scripts/").Handler(http.StripPrefix(webPrefix+"/scripts/", http.FileServer(http.Dir("./public/scripts/"))))
+	publicRouter.PathPrefix("/styles/").Handler(http.StripPrefix(webPrefix+"/styles/", http.FileServer(http.Dir("./public/styles/"))))
 	// serve assets under data/{experimentId]/sounds, with rewrite
-	router.
-		PathPrefix(webPrefix + "/xp/{experimentId:[a-zA-Z0-9-_]+}/sounds/{file:.*}").
+	publicRouter.
+		PathPrefix("/xp/{experimentId:[a-zA-Z0-9-_]+}/sounds/{file:.*}").
 		HandlerFunc(soundHandler)
 
-	// pages with basic auth
-	authedRouter := router.PathPrefix(webPrefix + "/").Subrouter()
+	// admin router
+	// if admin credentials are not setup, don't even enable the adminRouter
+	if len(adminLogin) > 0 && len(adminPassword) > 0 {
+		adminRouter := router.PathPrefix(webPrefix + "/admin").Subrouter()
+		adminRouter.Use(basicAuthWith(adminLogin, adminPassword))
+
+		adminRouter.
+			PathPrefix("/{experimentId:[a-zA-Z0-9-_]+}/results/").
+			Handler(http.StripPrefix(webPrefix+"/admin/", http.FileServer(http.Dir("./data/"))))
+	}
+
+	// xp router
+	xpRouter := router.PathPrefix(webPrefix + "/xp").Subrouter()
 	//authedRouter.Use(basicAuthWith("test", "test")
-	authedRouter.
-		PathPrefix("/xp/{experimentId:[a-zA-Z0-9-_]+}/{participantId:[a-zA-Z0-9-_]+}").
+	xpRouter.
+		PathPrefix("/{experimentId:[a-zA-Z0-9-_]+}/{participantId:[a-zA-Z0-9-_]+}").
 		HandlerFunc(xpHandler)
 
 	// port
@@ -153,8 +170,8 @@ func runServer() {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	log.Info().Msgf("[server] http listening on port %v", port)
-	log.Fatal().Err(server.ListenAndServe()) // blocking
+	log.Printf("[server] http listening on port %v\n", port)
+	log.Fatal(server.ListenAndServe()) // blocking
 }
 
 func main() {

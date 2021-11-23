@@ -1,11 +1,11 @@
 package front
 
 import (
+	"log"
 	"os"
 
 	_ "github.com/creamlab/revcor/helpers"
 	"github.com/evanw/esbuild/pkg/api"
-	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -53,16 +53,16 @@ func Build() {
 			OnRebuild: func(result api.BuildResult) {
 				if len(result.Errors) > 0 {
 					for _, msg := range result.Errors {
-						log.Error().Msgf("[JS build] error: %v", msg.Text)
+						log.Printf("[error] js build: %v", msg.Text)
 					}
 				} else {
 					if len(result.Warnings) > 0 {
-						log.Info().Msgf("[JS build] success with %d warnings", len(result.Warnings))
+						log.Printf("[info] js build success with %d warnings\n", len(result.Warnings))
 						for _, msg := range result.Warnings {
-							log.Info().Msgf("[JS build] warning: %v", msg.Text)
+							log.Printf("[warning] js build: %v\n", msg.Text)
 						}
 					} else {
-						log.Info().Msg("[JS build] success")
+						log.Println("[info] js build success")
 					}
 				}
 			},
@@ -72,6 +72,6 @@ func Build() {
 	build := api.Build(buildOptions)
 
 	if len(build.Errors) > 0 {
-		log.Fatal().Msgf("JS build fatal error: %v", build.Errors[0].Text)
+		log.Printf("[error] js build: %v\n", build.Errors[0].Text)
 	}
 }

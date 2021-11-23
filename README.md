@@ -53,8 +53,7 @@ Check other available settings in the [Environment variables](#environment-varia
 * `APP_WEB_PREFIX=/path` if, depending on your server configuration, `revcor` is served under a given path, for instance `https://example.com/path`
 * `APP_ENV=DEV` to enable development mode (set a few allowed origins on localhost, watch JS files to trigger builds, enhance logs)
 * `APP_ENV=BUILD_FRONT` builds front-end assets but do not start server
-* `APP_LOG_FILE=revcor.log` (defaults to none) to declare a file to write logs to (fails silently if file can't be opened)
-* `APP_LOG_STDOUT=true` (defaults to false) to print logs to Stdout (if `APP_LOG_FILE` is also set, logs are written to both)
+* `APP_ADMIN_LOGIN` and `APP_ADMIN_PASSWORD` credentials to access `/admin` pages
 
 ## Create a new experiment
 
