@@ -6,7 +6,7 @@ To create a new experiment, follow these instructions:
 
 * an `experiment_3` folder (at the same location than this README.md)
 * an `experiment_3/config` folder
-* an `experiment_3/sounds` folder (to hold *.wav files used during the experiment)
+* an `experiment_3/sounds` folder (to hold *.wav files used during the experiment, and *.txt files describing how the sounds have been generated)
 * an `experiment_3/results` folder (let empty at start, trials will populate it with data)
 * an `experiment_3/config/settings.json` JSON file (see more below)
 * an `experiment_3/config/wording.json` JSON file (see more below)
