@@ -33,7 +33,20 @@ func (r Result) IsValid() bool {
 
 // record formatting
 
-var Headers = []string{"subj", "trial", "block", "sex", "age", "date", "stim", "stim_order", "filter", "filter_freq", "filter_gain", "response", "rt"}
+var headersPrefix = []string{"subj", "trial", "block", "sex", "age", "date", "stim", "stim_order"}
+var headersSuffix = []string{"response", "rt"}
+
+func getHeaders(p Participant, r Result) (headers []string, err error) {
+	paramHeaders, err := ReadParamHeaders(p.ExperimentId, r.Stimulus)
+	if err != nil {
+		return
+	}
+	headers = append(headers, headersPrefix...)
+	headers = append(headers, "param_index")
+	headers = append(headers, paramHeaders...)
+	headers = append(headers, headersSuffix...)
+	return
+}
 
 func newRecord(p Participant, r Result, filterIndex int, f filter) []string {
 	return []string{
@@ -56,19 +69,23 @@ func newRecord(p Participant, r Result, filterIndex int, f filter) []string {
 // API
 
 func WriteToCSV(p Participant, r1, r2 Result) (err error) {
-	fs1, err := LoadFilters(p.XpId, r1.Stimulus)
+	fs1, err := ReadParamValues(p.ExperimentId, r1.Stimulus)
 	if err != nil {
 		return
 	}
-	fs2, err := LoadFilters(p.XpId, r2.Stimulus)
+	fs2, err := ReadParamValues(p.ExperimentId, r2.Stimulus)
 	if err != nil {
 		return
 	}
 
 	var records [][]string
-	path := "data/" + p.XpId + "/results/" + p.Id + ".csv"
+	path := "data/" + p.ExperimentId + "/results/" + p.Id + ".csv"
 	if !helpers.PathExists(path) {
-		records = append(records, Headers)
+		headers, e := getHeaders(p, r1)
+		if e != nil {
+			return e
+		}
+		records = append(records, headers)
 	}
 	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 

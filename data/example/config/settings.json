@@ -1,4 +1,8 @@
 {
-    "blockCount": 6,
-    "trialsPerBlock": 3
+    "adminPassword": "unsecure",
+    "allowCreate": true,
+    "createPassword": "consent",
+    "trialsPerBlock": 3,
+    "blocksPerXp": 4,
+    "addRepeatBlock": true
 }

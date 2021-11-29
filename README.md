@@ -53,7 +53,6 @@ Check other available settings in the [Environment variables](#environment-varia
 * `APP_WEB_PREFIX=/path` if, depending on your server configuration, `revcor` is served under a given path, for instance `https://example.com/path`
 * `APP_ENV=DEV` to enable development mode (set a few allowed origins on localhost, watch JS files to trigger builds, enhance logs)
 * `APP_ENV=BUILD_FRONT` builds front-end assets but do not start server
-* `APP_ADMIN_LOGIN` and `APP_ADMIN_PASSWORD` credentials to access `/admin` pages
 
 ## Create a new experiment
 

@@ -3,46 +3,29 @@ package xp
 import (
 	"encoding/json"
 	"io/ioutil"
-	"regexp"
 
 	"github.com/creamlab/revcor/helpers"
 )
 
 type ExperimentSettings struct {
 	Id             string `json:"id"`
-	BlockCount     int    `json:"blockCount"`
+	AdminPassword  string `json:"adminPassword"`
+	AllowCreate    bool   `json:"allowCreate"`
+	CreatePassword string `json:"createPassword"`
 	TrialsPerBlock int    `json:"trialsPerBlock"`
+	BlocksPerXp    int    `json:"blocksPerXp"`
+	AddRepeatBlock bool   `json:"addRepeatBlock"`
 }
 
-var (
-	validID = regexp.MustCompile("[a-zA-Z0-9-_]+")
-)
-
+// API
 // Check if ids sent by client are valid (match a regex + configuration file exists)
-func IsValid(experimentId, participantId string) bool {
+func IsExperimentValid(experimentId string) bool {
 	// check IDs format
-	if !validID.MatchString(experimentId) {
+	if !helpers.IsIdValid(experimentId) {
 		return false
 	}
-	if !validID.MatchString(participantId) {
-		return false
-	}
-
-	configPath := "data/" + experimentId + "/config/"
 	// check config exisis
-	if !helpers.PathExists(configPath + "settings.json") {
-		return false
-	}
-
-	// check participant exists
-	participantPaths := helpers.FindFilesUnder(configPath, "participants")
-	for _, p := range participantPaths {
-		if helpers.IsLineInFile(configPath+p, participantId) {
-			return true
-		}
-	}
-
-	return false
+	return helpers.PathExists("data/" + experimentId + "/config/settings.json")
 }
 
 func GetExperimentSettings(experimentId string) (e ExperimentSettings, err error) {
@@ -60,7 +43,19 @@ func GetExperimentSettings(experimentId string) (e ExperimentSettings, err error
 	return
 }
 
-func GetExperimentWordingString(experimentId string) (json string, err error) {
-	wordingPath := "data/" + experimentId + "/config/wording.json"
-	return helpers.ReadTrimJSON(wordingPath)
+func GetExperimentWordingRunString(experimentId string) (json string, err error) {
+	wordingRunPath := "data/" + experimentId + "/config/wording.run.json"
+	return helpers.ReadTrimJSON(wordingRunPath)
+}
+
+// no error is returned
+func GetExperimentWordingNewMap(experimentId string) (m map[string]string) {
+	wordingNewPath := "data/" + experimentId + "/config/wording.new.json"
+	file, err := ioutil.ReadFile(wordingNewPath)
+	if err != nil {
+		return
+	}
+
+	json.Unmarshal([]byte(file), &m)
+	return
 }

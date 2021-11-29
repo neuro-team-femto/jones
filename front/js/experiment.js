@@ -7,10 +7,9 @@ const pairs = (arr) =>
         }
     );
 
-const SELECT_1_KEY = "f";
-const SELECT_2_KEY = "j";
-
 const inBlock = (done, trialsPerBlock) => Math.floor(done / trialsPerBlock);
+
+const SOUND_PREFIX = "../sounds";
 
 // build and run experiment
 export default (state, ws) => {
@@ -18,8 +17,9 @@ export default (state, ws) => {
     const { settings, wording, participant } = state;
     const todo = participant.todo.split(",");
     const stimuli = pairs(todo, 2);
+    const blocks = settings.addRepeatBlock ? settings.blocksPerXp + 1 : settings.blocksPerXp;
 
-    const totalLength = settings.blockCount * settings.trialsPerBlock;
+    const totalLength = blocks * settings.trialsPerBlock;
     const remainingLength = todo.length / 2; // 2 sounds per trial
     const previouslyDoneLength = totalLength - remainingLength; // not 0 if user reconnects (page refresh for instance) 
 
@@ -28,6 +28,10 @@ export default (state, ws) => {
         trial: previouslyDoneLength,
         block: inBlock(previouslyDoneLength, settings.trialsPerBlock)
     };
+
+    const SELECT_1_KEY = wording.choice1;
+    const SELECT_2_KEY = wording.choice2;
+
 
     // experiment has already be fully run by this participant
     if(remainingLength === 0) {
@@ -45,11 +49,11 @@ export default (state, ws) => {
                 html: `<p>
                     <fieldset>
                         <label>${wording.collectAge}</label>
-                        <input id="age" name="age" type="text" minlength="2" maxlength="3" required />
+                        <input id="age" name="age" type="text" minlength="2" maxlength="3" pattern="[0-9]*" required />
                     </fieldset>
                     <fieldset>
                         <label>${wording.collectSex}</label>
-                        <input name="sex" type="text" minlength="1" maxlength="1" required />
+                        <input name="sex" type="text" maxlength="16" required />
                     </fieldset>
                 </p>`,
                 autofocus: "age",
@@ -116,7 +120,7 @@ export default (state, ws) => {
                 {
                     type: jsPsychPreload,
                     audio: () => {
-                        return [`sounds/${jsPsych.timelineVariable("s1")}`, `sounds/${jsPsych.timelineVariable("s2")}`]
+                        return [`${SOUND_PREFIX}/${jsPsych.timelineVariable("s1")}`, `${SOUND_PREFIX}/${jsPsych.timelineVariable("s2")}`]
                     },
                     show_progress_bar: false,
                     post_trial_gap: 200
@@ -134,7 +138,7 @@ export default (state, ws) => {
                 },
                 {
                     type: jsPsychAudioKeyboardResponse,
-                    stimulus: () => `sounds/${jsPsych.timelineVariable("s1")}`,
+                    stimulus: () => `${SOUND_PREFIX}/${jsPsych.timelineVariable("s1")}`,
                     choices: "NO_KEYS",
                     trial_ends_after_audio: true,
                     response_allowed_while_playing: false,
@@ -147,7 +151,7 @@ export default (state, ws) => {
                 },
                 {
                     type: jsPsychAudioKeyboardResponse,
-                    stimulus: () => `sounds/${jsPsych.timelineVariable("s2")}`,
+                    stimulus: () => `${SOUND_PREFIX}/${jsPsych.timelineVariable("s2")}`,
                     choices: "NO_KEYS",
                     trial_ends_after_audio: true,
                     response_allowed_while_playing: false,

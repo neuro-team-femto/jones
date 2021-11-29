@@ -13,11 +13,11 @@ import (
 )
 
 type Participant struct {
-	Id   string `json:"id"`
-	XpId string `json:"xpId"`
-	Todo string `json:"todo"`
-	Age  string `json:"age"`
-	Sex  string `json:"sex"`
+	Id           string `json:"id"`
+	ExperimentId string `json:"experimentId"`
+	Todo         string `json:"todo"`
+	Age          string `json:"age"`
+	Sex          string `json:"sex"`
 }
 
 func initParticipantWithInfo(es ExperimentSettings, participantId string) (Participant, error) {
@@ -51,13 +51,21 @@ func truncatedInPlaceShuffle(input []string, max int) []string {
 }
 
 // if participant state is empty, generate the complete list of sounds that compose a run
-// the length os this state is 2 (two sounds to be compared for each trial) * TrialsPerBlock * BlockCount
-func genTodo(es ExperimentSettings, participantId string) []string {
-	length := 2 * es.TrialsPerBlock * es.BlockCount
+// the length os this state is 2 (two sounds to be compared for each trial) * TrialsPerBlock * BlocksPerXp
+func generateTodo(es ExperimentSettings, participantId string) (todos []string) {
+	length := 2 * es.TrialsPerBlock * es.BlocksPerXp
 
 	allSoundsPath := "data/" + es.Id + "/sounds"
 	sounds := helpers.FindFilesUnder(allSoundsPath, ".wav")
-	return truncatedInPlaceShuffle(sounds, length)
+	todos = truncatedInPlaceShuffle(sounds, length)
+
+	if es.AddRepeatBlock {
+		// duplicate trials from last block
+		repeat := todos[length-(2*es.TrialsPerBlock):]
+		todos = append(todos, repeat...)
+	}
+
+	return
 }
 
 func getParticipantTodo(es ExperimentSettings, participantId string) (todo []string, err error) {
@@ -71,7 +79,7 @@ func getParticipantTodo(es ExperimentSettings, participantId string) (todo []str
 		todo, err = helpers.ReadFileLines(todoPath)
 	} else {
 		// create and save state
-		todo = genTodo(es, participantId)
+		todo = generateTodo(es, participantId)
 		state := strings.Join(todo[:], "\n")
 		err = ioutil.WriteFile(todoPath, []byte(state), 0644)
 	}
@@ -80,6 +88,31 @@ func getParticipantTodo(es ExperimentSettings, participantId string) (todo []str
 
 // API
 
+func DoesParticipantExist(experimentId, participantId string) bool {
+	if !helpers.IsIdValid(participantId) {
+		return false
+	}
+
+	configPath := "data/" + experimentId + "/config/"
+	// check participant exists
+	participantPaths := helpers.FindFilesUnder(configPath, "participants")
+	for _, p := range participantPaths {
+		if helpers.IsLineInFile(configPath+p, participantId) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Check if ids sent by client are valid (match a regex + configuration file exists)
+func IsParticipantValid(experimentId, participantId string) bool {
+	if !IsExperimentValid(experimentId) {
+		return false
+	}
+	return DoesParticipantExist(experimentId, participantId)
+}
+
 func LoadParticipant(es ExperimentSettings, participantId string) (p Participant, err error) {
 	p, err = initParticipantWithInfo(es, participantId)
 	if err != nil {
@@ -87,7 +120,7 @@ func LoadParticipant(es ExperimentSettings, participantId string) (p Participant
 	}
 	// add fields
 	p.Id = participantId
-	p.XpId = es.Id
+	p.ExperimentId = es.Id
 	todo, err := getParticipantTodo(es, participantId)
 	p.Todo = strings.Join(todo, ",")
 	return
@@ -100,25 +133,25 @@ func (p *Participant) UpdateInfo(age, sex string) (err error) {
 
 	// save to file (filter todo field)
 	toSave := map[string]string{
-		"id":   p.Id,
-		"xpId": p.XpId,
-		"Age":  age,
-		"Sex":  sex,
+		"id":           p.Id,
+		"experimentId": p.ExperimentId,
+		"Age":          age,
+		"Sex":          sex,
 	}
 	contents, err := json.MarshalIndent(toSave, "", "  ")
 	if err != nil {
 		return
 	}
 
-	infoPath := "state/" + p.XpId + "/" + p.Id + "/info.json"
+	infoPath := "state/" + p.ExperimentId + "/" + p.Id + "/info.json"
 	err = ioutil.WriteFile(infoPath, contents, 0644)
 	return
 }
 
 func (p *Participant) UpdateTodo(stimuli1, stimuli2 string) (err error) {
-	todoPath := "state/" + p.XpId + "/" + p.Id + "/todo.txt"
+	todoPath := "state/" + p.ExperimentId + "/" + p.Id + "/todo.txt"
 	if helpers.PathExists(todoPath) {
-		helpers.RemoveLinesFromFile(todoPath, stimuli1, stimuli2)
+		helpers.RemoveOnceFromFile(todoPath, stimuli1, stimuli2)
 	} else {
 		return errors.New("missing-todo")
 	}

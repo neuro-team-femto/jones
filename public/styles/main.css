@@ -3,6 +3,10 @@ body {
     font-family: Verdana, Geneva, Tahoma, sans-serif
 }
 
+body.new-body {
+    padding-top: 100px;
+}
+
 .jspsych-content {
     width: 600px;
     padding: 20px 30px;
@@ -24,7 +28,7 @@ body {
     border: 0;
 }
 #jspsych-survey-html-form fieldset label {
-    width: 106px;
+    width: 120px;
     text-align: right;
     padding-right: 6px;
 }

@@ -84,7 +84,9 @@ func IsLineInFile(path string, line string) bool {
 	return false
 }
 
-func RemoveLinesFromFile(path string, line1, line2 string) (err error) {
+// remove line1 and line2 from file once
+// (if line1 appears several times, only the first occurrence is removed, same for line2)
+func RemoveOnceFromFile(path string, line1, line2 string) (err error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return
@@ -95,13 +97,16 @@ func RemoveLinesFromFile(path string, line1, line2 string) (err error) {
 	buf := bytes.NewBuffer(bs)
 
 	scanner := bufio.NewScanner(file)
+	line1RemovedOnce := false
+	line2RemovedOnce := false
 	for scanner.Scan() {
-		if scanner.Text() != line1 && scanner.Text() != line2 {
-			_, err = buf.Write(scanner.Bytes())
-			if err != nil {
-				return
-			}
-			_, err = buf.WriteString("\n")
+		currentLine := scanner.Text()
+		if currentLine == line1 && !line1RemovedOnce {
+			line1RemovedOnce = true
+		} else if currentLine == line2 && !line2RemovedOnce {
+			line2RemovedOnce = true
+		} else {
+			_, err = buf.WriteString(scanner.Text() + "\n")
 			if err != nil {
 				return
 			}

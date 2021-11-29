@@ -1,4 +1,4 @@
-package ws
+package server
 
 import (
 	"encoding/json"
@@ -106,7 +106,7 @@ func (pc participantConn) loop() {
 
 // API
 
-func Run(conn *websocket.Conn) {
+func runWs(conn *websocket.Conn) {
 	defer conn.Close()
 
 	// there is an implied protocol to be followed:
@@ -120,7 +120,7 @@ func Run(conn *websocket.Conn) {
 
 	join := joinData{}
 	err = json.Unmarshal([]byte(joinMsg.Payload), &join)
-	if err != nil || !xp.IsValid(join.ExperimentId, join.ParticipantId) {
+	if err != nil || !xp.IsParticipantValid(join.ExperimentId, join.ParticipantId) {
 		sendAndLogError(conn, err, "error-join-invalid")
 		return
 	}
@@ -130,7 +130,7 @@ func Run(conn *websocket.Conn) {
 		return
 	}
 
-	ew, err := xp.GetExperimentWordingString(join.ExperimentId)
+	ew, err := xp.GetExperimentWordingRunString(join.ExperimentId)
 	if err != nil {
 		return
 	}
