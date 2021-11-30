@@ -135,8 +135,8 @@ func (p *Participant) UpdateInfo(age, sex string) (err error) {
 	toSave := map[string]string{
 		"id":           p.Id,
 		"experimentId": p.ExperimentId,
-		"Age":          age,
-		"Sex":          sex,
+		"age":          age,
+		"sex":          sex,
 	}
 	contents, err := json.MarshalIndent(toSave, "", "  ")
 	if err != nil {

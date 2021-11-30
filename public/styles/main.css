@@ -1,10 +1,15 @@
+html {
+    height: 100%;
+}
+
 body {
     background-color: #f1f1f1;
     font-family: Verdana, Geneva, Tahoma, sans-serif
 }
 
 body.new-body {
-    padding-top: 100px;
+    display: flex;
+    align-items: center;
 }
 
 .jspsych-content {
