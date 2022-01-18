@@ -1,18 +1,18 @@
 To create a new experiment, follow these instructions:
 
-1. Choose an experience ID using this character set: [a-zA-Z0-9-_]. From now on, let say you choose `experiment_3`.
+1. Choose an experience ID using this character set: `a-zA-Z0-9-_`. From now on, let say you choose `experiment_3`.
 
 If your revcor app is reachable at `https://example.com`, the root path of the experiment is `https://example.com/xp/experiment_3/`
 
 2. Create the following folders and files in `data`:
 
-* an `experiment_3` folder (at the same location than this README.md)
-* an `experiment_3/config` folder
-* an `experiment_3/sounds` folder (to hold *.wav files used during the experiment, and *.txt files describing how the sounds have been generated)
-* an `experiment_3/results` folder (let empty at start, trials will populate it with data)
-* an `experiment_3/config/settings.json` JSON file (see more below)
-* an `experiment_3/config/wording.json` JSON file (see more below)
-* an `experiment_3/config/participants.txt` file containing one participant ID per line (valid IDs are also made of [a-zA-Z0-9-_])
+* (folder) `experiment_3/` at the same location than this README.md
+* (folder) `experiment_3/config/` to hold configuration files
+* (folder) `experiment_3/sounds/` to hold *.wav files used during the experiment, and *.txt files describing how the sounds have been generated
+* (folder) `experiment_3/results/` let empty at start, trials will populate it with data
+* `experiment_3/config/settings.json` JSON file (see more below)
+* `experiment_3/config/wording.json` JSON file (see more below)
+* `experiment_3/config/participants.txt` text file containing one participant ID per line (valid IDs are also made of `a-zA-Z0-9-_)
 
 For convenience you may in fact declare several `participants` files: any text file containing the string `participants` (in the `experiment_3/config/` folder) is considered a valid participants dictionnary.
 
@@ -69,7 +69,7 @@ Let's review the meaning of each property:
 
 **Caution**: the properties `"choice1` and `choice2` have to map actual keyboard letter keys, they are used as is to collect the participant decision.
 
-An additional `wording.new.json` file has to be provided for the participant creation page (only available if `allowCreate` is true).
+An additional `wording.new.json` file has to be provided for the participant creation page (only available if `allowCreate` is true), please check `data/example/confid.wording.new.json`.
 
 5. Put wav files to be tested in `experiment_3/sounds` and add a text file defining how the sound has been generated in a CSV format. The file names need to be identical, with only the file extension changing. For instance the `gomot_a.0001.eq.wav` sound file has to be paired with `gomot_a.0001.eq.txt`, whose contents looks like:
 
