@@ -30,7 +30,7 @@ func init() {
 		allowedOrigins = append(allowedOrigins, strings.Split(envOrigins, ",")...)
 	}
 	if os.Getenv("APP_ENV") == "DEV" {
-		allowedOrigins = append(allowedOrigins, "http://localhost:8100", "https://localhost:8100")
+		allowedOrigins = append(allowedOrigins, "http://localhost:8100", "https://localhost:8100", "http://localhost:8101")
 	}
 
 	// web prefix, for instance "/path" if DuckSoup is reachable at https://host/path
@@ -38,10 +38,16 @@ func init() {
 
 	// log
 	log.Printf("[server] allowed ws origins: %v\n", allowedOrigins)
+	log.Printf("[server] APP_WEB_PREFIX: %v\n", webPrefix)
+}
+
+func notFound(w http.ResponseWriter, r *http.Request) {
+	log.Printf("[server] not found: %v\n", r.URL)
 }
 
 func GetRouter() *mux.Router {
 	router := mux.NewRouter()
+	router.NotFoundHandler = http.HandlerFunc(notFound)
 	// public router with no auth
 	publicRouter := router.PathPrefix(webPrefix).Subrouter()
 
