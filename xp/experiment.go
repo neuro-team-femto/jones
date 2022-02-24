@@ -43,6 +43,14 @@ func GetExperimentSettings(experimentId string) (e ExperimentSettings, err error
 	return
 }
 
+func GetSanitizedExperimentSettings(experimentId string) (e ExperimentSettings, err error) {
+	e, err = GetExperimentSettings(experimentId)
+	// sanitize
+	e.AdminPassword = ""
+	e.CreatePassword = ""
+	return
+}
+
 func GetExperimentWordingRunString(experimentId string) (json string, err error) {
 	wordingRunPath := "data/" + experimentId + "/config/wording.run.json"
 	return helpers.ReadTrimJSON(wordingRunPath)

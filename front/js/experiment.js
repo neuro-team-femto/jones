@@ -32,7 +32,6 @@ export default (state, ws) => {
     const SELECT_1_KEY = wording.choice1;
     const SELECT_2_KEY = wording.choice2;
 
-
     // experiment has already be fully run by this participant
     if(remainingLength === 0) {
         timeline.push({

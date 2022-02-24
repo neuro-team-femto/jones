@@ -125,7 +125,7 @@ func runWs(conn *websocket.Conn) {
 		return
 	}
 
-	es, err := xp.GetExperimentSettings(join.ExperimentId)
+	es, err := xp.GetSanitizedExperimentSettings(join.ExperimentId)
 	if err != nil {
 		return
 	}

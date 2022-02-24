@@ -1,3 +1,5 @@
+## Creation
+
 To create a new experiment, follow these instructions:
 
 1. Choose an experience ID using this character set: `a-zA-Z0-9-_`. From now on, let say you choose `experiment_3`.
@@ -110,4 +112,11 @@ https://example.com/xp/experiment_3/d465f071d45d8a216b42d6411e865bcf
 https://example.com/xp/experiment_3/f003a58ffc73c3bd44f2c44662c98def
 https://example.com/xp/experiment_3/1de290f8d4e545f768851e4039770709
 
+## Reset
 
+If you want to reset an experience collected data, you should be aware that data relevant to participants is stored at two different places:
+
+- `experiment_3/results/`: the CSV format output that is used for further analysis
+- `state/experiment_3/`: which is an internal state folder used to store participant data during the experiment, particularly helpful if the participant takes a break or reloads the page
+
+That's why you should delete files/folders at both places if you want to get rid of data related to given participants.
