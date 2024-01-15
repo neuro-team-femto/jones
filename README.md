@@ -1,8 +1,8 @@
 # revcor
 
-This project provides with a back-end for a [jspsych](https://www.jspsych.org/) revcor experience intended to compare pair of sounds generated with [cleese](https://github.com/neuro-team-femto/cleese). The main features are:
+This project provides with a back-end for a [jspsych](https://www.jspsych.org/) revcor experience intended to compare pair of sounds or images generated with [cleese](https://github.com/neuro-team-femto/cleese). The main features are:
 
-* enable the creation of new experiments through a few configuration files (see `data/README.md`)
+* enable the creation of new experiments through a few configuration files (see `examples/README.md`)
 * have the jspsych (front-end) experiment interact with the server thanks to WebSockets (leveraging [golang](https://golang.org/) and [gorilla/websocket](https://github.com/gorilla/websocket))
 * deployment made easy (1): build project, transfer the binary and a few folders
 * deployment made easy (2): no database needed (all configuration and state being saved to text files)
@@ -26,11 +26,12 @@ Check [Build options](#build-options) to build for different platforms.
 APP_ENV=BUILD_FRONT ./revcor
 ```
 
-4. Transfer to server the `revcor` binary, and the whole `data` and `public` folders:
+4. Transfer to server the `revcor` binary, and the `data`, `examples` and `public` folders:
 
 ```
 revcor     -> jspsych WebSocket back-end to manage experiments + HTTP server for front-end assets 
-data/      -> contains experiments configuration and generated data
+data/      -> contains live experiments data (configuration and results)
+examples/  -> contains example experiment configurations
 public/    -> js/css assets served by HTTP server
 ```
 
@@ -64,7 +65,7 @@ Go to http://localhost:8100/xp/example/new
 
 ## Create a new experiment
 
-Create a new folder in `data/` and follow the instructions in `example/README.md`.
+Create a new folder in `data/` and follow the instructions in `examples/README.md`.
 
 ## Additional setup
 

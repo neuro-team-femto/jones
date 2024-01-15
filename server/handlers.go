@@ -24,7 +24,7 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 	runWs(conn)
 }
 
-func soundHandler(w http.ResponseWriter, r *http.Request) {
+func assetHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	path := "data/" + vars["experimentId"] + "/assets/" + vars["file"]
 	http.ServeFile(w, r, path)

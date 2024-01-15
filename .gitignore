@@ -1,3 +1,4 @@
+data
 state
 results
 revcor
@@ -7,4 +8,5 @@ new-participants.txt
 .DS_Store
 
 # except
-!example/results
+!examples/sound_xp/results
+!examples/image_xp/results

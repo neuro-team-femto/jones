@@ -32,9 +32,9 @@ func Build() {
 	buildOptions := api.BuildOptions{
 		EntryPoints:       []string{"front/js/main.js"},
 		Bundle:            true,
-		MinifyWhitespace:  true,
-		MinifyIdentifiers: true,
-		MinifySyntax:      true,
+		MinifyWhitespace:  !developmentMode,
+		MinifyIdentifiers: !developmentMode,
+		MinifySyntax:      !developmentMode,
 		Engines: []api.Engine{
 			{api.EngineChrome, "64"},
 			{api.EngineFirefox, "53"},
@@ -46,34 +46,37 @@ func Build() {
 	}
 
 	if developmentMode {
-		buildOptions.MinifyWhitespace = false
-		buildOptions.MinifyIdentifiers = false
-		buildOptions.MinifySyntax = false
-		logsPlugin := api.Plugin{
-			Name: "Logger",
-			Setup: func(build api.PluginBuild) {
-				build.OnEnd(func(result *api.BuildResult) (api.OnEndResult, error) {
-					if len(result.Errors) > 0 {
-						for _, msg := range result.Errors {
-							log.Printf("[error] js build: %v", msg.Text)
-						}
-					} else {
-						if len(result.Warnings) > 0 {
-							log.Printf("[info] js build success with %d warnings\n", len(result.Warnings))
-							for _, msg := range result.Warnings {
-								log.Printf("[warning] js build: %v\n", msg.Text)
-							}
-						} else {
-							log.Println("[info] js build success")
-						}
-					}
-					return api.OnEndResult{}, nil
-				})
-			},
+		ctx, err := api.Context(buildOptions)
+		if err != nil {
+			log.Fatal(err)
+		} else if watchErr := ctx.Watch(api.WatchOptions{}); watchErr != nil {
+			log.Fatal(watchErr)
 		}
-		buildOptions.Plugins = []api.Plugin{logsPlugin}
 	}
 
+	logsPlugin := api.Plugin{
+		Name: "Logger",
+		Setup: func(build api.PluginBuild) {
+			build.OnEnd(func(result *api.BuildResult) (api.OnEndResult, error) {
+				if len(result.Errors) > 0 {
+					for _, msg := range result.Errors {
+						log.Printf("[error] js build: %v", msg.Text)
+					}
+				} else {
+					if len(result.Warnings) > 0 {
+						log.Printf("[info] js build success with %d warnings\n", len(result.Warnings))
+						for _, msg := range result.Warnings {
+							log.Printf("[warning] js build: %v\n", msg.Text)
+						}
+					} else {
+						log.Println("[info] js build success")
+					}
+				}
+				return api.OnEndResult{}, nil
+			})
+		},
+	}
+	buildOptions.Plugins = []api.Plugin{logsPlugin}
 	build := api.Build(buildOptions)
 
 	if len(build.Errors) > 0 {

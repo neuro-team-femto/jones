@@ -59,7 +59,7 @@ func GetRouter() *mux.Router {
 	publicRouter.PathPrefix("/styles/").Handler(http.StripPrefix(webPrefix+"/styles/", http.FileServer(http.Dir("./public/styles/"))))
 
 	// serve assets under data/{experimentId]/assets, with path rewrite
-	publicRouter.HandleFunc("/xp/{experimentId:[a-zA-Z0-9-_]+}/assets/{file:.*}", soundHandler)
+	publicRouter.HandleFunc("/xp/{experimentId:[a-zA-Z0-9-_]+}/assets/{file:.*}", assetHandler)
 
 	// run xp
 	publicRouter.HandleFunc("/xp/{experimentId:[a-zA-Z0-9-_]+}/run/{participantId:[a-zA-Z0-9-_]+}", runHandler)

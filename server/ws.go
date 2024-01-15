@@ -142,11 +142,12 @@ func runWs(conn *websocket.Conn) {
 	}
 
 	// caution: es/p are structs that will be automatically deserialized as JS objects client side
-	// ew is a string that remains to be parsed client-side (done this way not to declare wordings.json structure)
+	// ew is a string that remains to be parsed client-side
+	// done this way on purpose, not to type/declare wording json evolving structures
 	initPayload := outData{
 		"settings":    es,
-		"wording":     ew,
 		"participant": p,
+		"wording":     ew,
 	}
 
 	// 2. first sent message is an "init" containing the data needed to initialized the client state

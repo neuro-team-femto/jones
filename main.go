@@ -16,12 +16,8 @@ var (
 )
 
 func init() {
-	// create state folder
+	// create data folder if needed
 	err := helpers.EnsureFolder("data")
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = helpers.EnsureFolder("state")
 	if err != nil {
 		log.Fatal(err)
 	}

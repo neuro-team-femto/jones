@@ -3,10 +3,10 @@ package xp
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"math/rand"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/neuro-team-femto/revcor/helpers"
 )
@@ -19,12 +19,18 @@ type Participant struct {
 	Sex          string `json:"sex"`
 }
 
-func initParticipantWithInfo(es ExperimentSettings, participantId string) (Participant, error) {
-	infoPath := "state/" + es.Id + "/" + participantId + "/info.json"
-	p := Participant{}
+func getStateFolder(experimentId, participantId string) string {
+	return "data/" + experimentId + "/state/" + participantId + "/"
+}
 
+func initParticipantWithInfo(es ExperimentSettings, participantId string) (Participant, error) {
+	p := Participant{Id: participantId, ExperimentId: es.Id}
+	stateFolder := getStateFolder(es.Id, participantId)
+	helpers.EnsureFolder(stateFolder)
+	infoPath := stateFolder + "info.json"
+
+	// check if participant is new (not considered an error!)
 	if _, silentErr := os.Stat(infoPath); errors.Is(silentErr, os.ErrNotExist) {
-		// not considered an error
 		return p, nil
 	}
 
@@ -41,22 +47,24 @@ func initParticipantWithInfo(es ExperimentSettings, participantId string) (Parti
 }
 
 func truncatedInPlaceShuffle(input []string, max int) []string {
-	rand.Seed(time.Now().UnixNano())
-
+	if len(input) == 0 {
+		return nil
+	}
+	log.Println(input, max)
 	rand.Shuffle(len(input), func(i, j int) {
 		input[i], input[j] = input[j], input[i]
 	})
 	return input[:max]
 }
 
-// if participant state is empty, generate the complete list of sounds that compose a run
-// the length os this state is 2 (two sounds to be compared for each trial) * TrialsPerBlock * BlocksPerXp
+// if participant state is empty, generate the complete list of assets that compose a run
+// the length os this state is 2 (two assets to be compared for each trial) * TrialsPerBlock * BlocksPerXp
 func generateTodo(es ExperimentSettings, participantId string) (todos []string) {
 	length := 2 * es.TrialsPerBlock * es.BlocksPerXp
 
-	allSoundsPath := "data/" + es.Id + "/assets"
-	sounds := helpers.FindFilesUnder(allSoundsPath, "."+es.FileExtension)
-	todos = truncatedInPlaceShuffle(sounds, length)
+	allAssetsPath := "data/" + es.Id + "/assets"
+	assets := helpers.FindFilesUnder(allAssetsPath, "."+es.FileExtension)
+	todos = truncatedInPlaceShuffle(assets, length)
 
 	if es.AddRepeatBlock {
 		// duplicate trials from last block
@@ -68,10 +76,7 @@ func generateTodo(es ExperimentSettings, participantId string) (todos []string) 
 }
 
 func getParticipantTodo(es ExperimentSettings, participantId string) (todo []string, err error) {
-	folder := "state/" + es.Id + "/" + participantId
-	helpers.EnsureFolder(folder)
-
-	todoPath := folder + "/todo.txt"
+	todoPath := getStateFolder(es.Id, participantId) + "todo.txt"
 
 	if helpers.PathExists(todoPath) {
 		// load from state
@@ -118,8 +123,6 @@ func LoadParticipant(es ExperimentSettings, participantId string) (p Participant
 		return
 	}
 	// add fields
-	p.Id = participantId
-	p.ExperimentId = es.Id
 	todo, err := getParticipantTodo(es, participantId)
 	p.Todo = strings.Join(todo, ",")
 	return
@@ -142,13 +145,13 @@ func (p *Participant) UpdateInfo(age, sex string) (err error) {
 		return
 	}
 
-	infoPath := "state/" + p.ExperimentId + "/" + p.Id + "/info.json"
+	infoPath := getStateFolder(p.ExperimentId, p.Id) + "info.json"
 	err = os.WriteFile(infoPath, contents, 0644)
 	return
 }
 
 func (p *Participant) UpdateTodo(stimuli1, stimuli2 string) (err error) {
-	todoPath := "state/" + p.ExperimentId + "/" + p.Id + "/todo.txt"
+	todoPath := getStateFolder(p.ExperimentId, p.Id) + "todo.txt"
 	if helpers.PathExists(todoPath) {
 		helpers.RemoveOnceFromFile(todoPath, stimuli1, stimuli2)
 	} else {
