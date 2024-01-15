@@ -10,7 +10,7 @@ If your revcor app is reachable at `https://example.com`, the root path of the e
 
 * (folder) `experiment_3/` at the same location than this README.md
 * (folder) `experiment_3/config/` to hold configuration files
-* (folder) `experiment_3/assets/` to hold wav (or jpg/png for images) assets used during the experiment, plus *.txt files describing how the sounds/images have been generated
+* (folder) `experiment_3/assets/` to hold wav (or jpg/png for images) assets used during the experiment, plus *.txt files describing how the sounds/images have been generated (see more below)
 * (folder) `experiment_3/results/` let empty at start, trials will populate it with data
 * `experiment_3/config/settings.json` JSON file (see more below)
 * `experiment_3/config/wording.new.json` and `experiment_3/config/wording.run.json` JSON file (see more below)
@@ -80,7 +80,12 @@ Let's review the meaning of each property:
 
 An additional `wording.new.json` file has to be provided for the participant creation page (only available if `allowCreate` is true), please check `examples/sound_xp/config/wording.new.json`.
 
-5. Put assets to be tested in `experiment_3/assets` and add a text file defining how the asset (sound or image file) has been generated in a CSV format. The file names need to be identical, with only the file extension changing. For instance the `gomot_a.0001.eq.wav` sound file has to be paired with `gomot_a.0001.eq.txt`, whose contents looks like:
+5. Put assets to be tested in `experiment_3/assets`. For each *asset* file (sound or image) there MUST be a *definition* file respecting the following conditions:
+* for a given sound or image, the asset and definition files have an identical name but a different extension. For instance the asset `gomot_a.0001.eq.wav` is paired with its definition `gomot_a.0001.eq.txt` (definition extension are always `txt`)
+* definition files are CSV formatted, with comma-separated headers on their first line
+* in the same experiment, all definition files share the same headers (implying that all `experiment_3/assets/*.txt` start with the same first line, defining headers)
+
+Here is a sample of a possible sound definition file:
 
 ```csv
 filter_freq,filter_gain

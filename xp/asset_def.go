@@ -6,22 +6,15 @@ import (
 	"strings"
 )
 
-type filter struct {
-	Freq string
-	Gain string
-}
-
-type filters []filter
-
-func getParamFile(es ExperimentSettings, asset string) (file *os.File, err error) {
+func getAssetDefFile(es ExperimentSettings, asset string) (file *os.File, err error) {
 	filterFile := strings.TrimSuffix(asset, "."+es.FileExtension) + ".txt"
 	filterPath := "data/" + es.Id + "/assets/" + filterFile
 	file, err = os.Open(filterPath)
 	return
 }
 
-func ReadParamHeaders(es ExperimentSettings, asset string) (headers []string, err error) {
-	file, err := getParamFile(es, asset)
+func getAssetDefHeaders(es ExperimentSettings, asset string) (headers []string, err error) {
+	file, err := getAssetDefFile(es, asset)
 	if err != nil {
 		return
 	}
@@ -34,8 +27,8 @@ func ReadParamHeaders(es ExperimentSettings, asset string) (headers []string, er
 	return
 }
 
-func ReadParamValues(es ExperimentSettings, asset string) (fs filters, err error) {
-	file, err := getParamFile(es, asset)
+func getAssetDefAllValues(es ExperimentSettings, asset string) (allValues [][]string, err error) {
+	file, err := getAssetDefFile(es, asset)
 	if err != nil {
 		return
 	}
@@ -47,11 +40,8 @@ func ReadParamValues(es ExperimentSettings, asset string) (fs filters, err error
 	scanner.Scan()
 
 	for scanner.Scan() {
-		raw := strings.Split(scanner.Text(), ",")
-		fs = append(fs, filter{
-			Freq: raw[0],
-			Gain: raw[1],
-		})
+		values := strings.Split(scanner.Text(), ",")
+		allValues = append(allValues, values)
 	}
 	return
 }

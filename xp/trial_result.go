@@ -33,47 +33,47 @@ func (r Result) IsValid() bool {
 
 // record formatting
 
-var headersPrefix = []string{"subj", "trial", "block", "sex", "age", "date", "stim", "stim_order"}
-var headersSuffix = []string{"response", "rt"}
+var headers1 = []string{"subj", "trial", "block", "date", "stim", "stim_order", "response", "rt"}
+var headers2 = []string{"sex", "age"}
 
-func getHeaders(es ExperimentSettings, r Result) (headers []string, err error) {
-	paramHeaders, err := ReadParamHeaders(es, r.Stimulus)
+func genRecordHeaders(es ExperimentSettings, r Result) (headers []string, err error) {
+	paramHeaders, err := getAssetDefHeaders(es, r.Stimulus)
 	if err != nil {
 		return
 	}
-	headers = append(headers, headersPrefix...)
+	headers = append(headers, headers1...)
+	headers = append(headers, headers2...)
 	headers = append(headers, "param_index")
 	headers = append(headers, paramHeaders...)
-	headers = append(headers, headersSuffix...)
 	return
 }
 
-func newRecord(p Participant, r Result, filterIndex int, f filter) []string {
-	return []string{
+func newRecord(p Participant, r Result, index int, values []string) []string {
+	record := []string{
 		p.Id,
 		r.Trial,
 		r.Block,
-		p.Sex,
-		p.Age,
 		r.Date,
 		r.Stimulus,
 		r.Order,
-		fmt.Sprint(filterIndex),
-		f.Freq,
-		f.Gain,
 		r.Response,
 		r.Rt,
+		p.Sex,
+		p.Age,
+		fmt.Sprint(index),
 	}
+	record = append(record, values...)
+	return record
 }
 
 // API
 
 func WriteToCSV(es ExperimentSettings, p Participant, r1, r2 Result) (err error) {
-	fs1, err := ReadParamValues(es, r1.Stimulus)
+	def1, err := getAssetDefAllValues(es, r1.Stimulus)
 	if err != nil {
 		return
 	}
-	fs2, err := ReadParamValues(es, r2.Stimulus)
+	def2, err := getAssetDefAllValues(es, r2.Stimulus)
 	if err != nil {
 		return
 	}
@@ -81,21 +81,21 @@ func WriteToCSV(es ExperimentSettings, p Participant, r1, r2 Result) (err error)
 	var records [][]string
 	path := "data/" + p.ExperimentId + "/results/" + p.Id + ".csv"
 	if !helpers.PathExists(path) {
-		headers, e := getHeaders(es, r1)
+		headers, e := genRecordHeaders(es, r1)
 		if e != nil {
 			return e
 		}
 		records = append(records, headers)
 	}
+
+	for index, values := range def1 {
+		records = append(records, newRecord(p, r1, index, values))
+	}
+	for index, values := range def2 {
+		records = append(records, newRecord(p, r2, index, values))
+	}
+
 	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-
-	for index, f := range fs1 {
-		records = append(records, newRecord(p, r1, index, f))
-	}
-	for index, f := range fs2 {
-		records = append(records, newRecord(p, r2, index, f))
-	}
-
 	w := csv.NewWriter(file)
 	w.WriteAll(records)
 	return
