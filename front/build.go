@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	_ "github.com/creamlab/revcor/helpers"
 	"github.com/evanw/esbuild/pkg/api"
+	_ "github.com/neuro-team-femto/revcor/helpers"
 )
 
 var (
@@ -49,24 +49,29 @@ func Build() {
 		buildOptions.MinifyWhitespace = false
 		buildOptions.MinifyIdentifiers = false
 		buildOptions.MinifySyntax = false
-		buildOptions.Watch = &api.WatchMode{
-			OnRebuild: func(result api.BuildResult) {
-				if len(result.Errors) > 0 {
-					for _, msg := range result.Errors {
-						log.Printf("[error] js build: %v", msg.Text)
-					}
-				} else {
-					if len(result.Warnings) > 0 {
-						log.Printf("[info] js build success with %d warnings\n", len(result.Warnings))
-						for _, msg := range result.Warnings {
-							log.Printf("[warning] js build: %v\n", msg.Text)
+		logsPlugin := api.Plugin{
+			Name: "Logger",
+			Setup: func(build api.PluginBuild) {
+				build.OnEnd(func(result *api.BuildResult) (api.OnEndResult, error) {
+					if len(result.Errors) > 0 {
+						for _, msg := range result.Errors {
+							log.Printf("[error] js build: %v", msg.Text)
 						}
 					} else {
-						log.Println("[info] js build success")
+						if len(result.Warnings) > 0 {
+							log.Printf("[info] js build success with %d warnings\n", len(result.Warnings))
+							for _, msg := range result.Warnings {
+								log.Printf("[warning] js build: %v\n", msg.Text)
+							}
+						} else {
+							log.Println("[info] js build success")
+						}
 					}
-				}
+					return api.OnEndResult{}, nil
+				})
 			},
 		}
+		buildOptions.Plugins = []api.Plugin{logsPlugin}
 	}
 
 	build := api.Build(buildOptions)

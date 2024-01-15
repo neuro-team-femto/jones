@@ -9,7 +9,7 @@ const pairs = (arr) =>
 
 const inBlock = (done, trialsPerBlock) => Math.floor(done / trialsPerBlock);
 
-const SOUND_PREFIX = "../sounds";
+const ASSET_PREFIX = "../assets";
 
 // build and run experiment
 export default (state, ws) => {
@@ -119,7 +119,7 @@ export default (state, ws) => {
                 {
                     type: jsPsychPreload,
                     audio: () => {
-                        return [`${SOUND_PREFIX}/${jsPsych.timelineVariable("s1")}`, `${SOUND_PREFIX}/${jsPsych.timelineVariable("s2")}`]
+                        return [`${ASSET_PREFIX}/${jsPsych.timelineVariable("s1")}`, `${ASSET_PREFIX}/${jsPsych.timelineVariable("s2")}`]
                     },
                     show_progress_bar: false,
                     post_trial_gap: 200
@@ -137,7 +137,7 @@ export default (state, ws) => {
                 },
                 {
                     type: jsPsychAudioKeyboardResponse,
-                    stimulus: () => `${SOUND_PREFIX}/${jsPsych.timelineVariable("s1")}`,
+                    stimulus: () => `${ASSET_PREFIX}/${jsPsych.timelineVariable("s1")}`,
                     choices: "NO_KEYS",
                     trial_ends_after_audio: true,
                     response_allowed_while_playing: false,
@@ -150,7 +150,7 @@ export default (state, ws) => {
                 },
                 {
                     type: jsPsychAudioKeyboardResponse,
-                    stimulus: () => `${SOUND_PREFIX}/${jsPsych.timelineVariable("s2")}`,
+                    stimulus: () => `${ASSET_PREFIX}/${jsPsych.timelineVariable("s2")}`,
                     choices: "NO_KEYS",
                     trial_ends_after_audio: true,
                     response_allowed_while_playing: false,

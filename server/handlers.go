@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/creamlab/revcor/helpers"
-	"github.com/creamlab/revcor/xp"
 	"github.com/gorilla/mux"
+	"github.com/neuro-team-femto/revcor/helpers"
+	"github.com/neuro-team-femto/revcor/xp"
 )
 
 // handle incoming websockets
@@ -26,7 +26,7 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 
 func soundHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	path := "data/" + vars["experimentId"] + "/sounds/" + vars["file"]
+	path := "data/" + vars["experimentId"] + "/assets/" + vars["file"]
 	http.ServeFile(w, r, path)
 }
 

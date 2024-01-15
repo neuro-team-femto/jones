@@ -4,5 +4,7 @@ revcor
 public/scripts/main.js
 new-participants.txt
 *.log
-.vscode
 .DS_Store
+
+# except
+!example/results

@@ -2,9 +2,9 @@ package xp
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 
-	"github.com/creamlab/revcor/helpers"
+	"github.com/neuro-team-femto/revcor/helpers"
 )
 
 type ExperimentSettings struct {
@@ -12,6 +12,8 @@ type ExperimentSettings struct {
 	AdminPassword  string `json:"adminPassword"`
 	AllowCreate    bool   `json:"allowCreate"`
 	CreatePassword string `json:"createPassword"`
+	Kind           string `json:"kind"`
+	FileExtension  string `json:"fileExtension"`
 	TrialsPerBlock int    `json:"trialsPerBlock"`
 	BlocksPerXp    int    `json:"blocksPerXp"`
 	AddRepeatBlock bool   `json:"addRepeatBlock"`
@@ -30,7 +32,7 @@ func IsExperimentValid(experimentId string) bool {
 
 func GetExperimentSettings(experimentId string) (e ExperimentSettings, err error) {
 	settingsPath := "data/" + experimentId + "/config/settings.json"
-	file, err := ioutil.ReadFile(settingsPath)
+	file, err := os.ReadFile(settingsPath)
 	if err != nil {
 		return
 	}
@@ -40,6 +42,16 @@ func GetExperimentSettings(experimentId string) (e ExperimentSettings, err error
 		return
 	}
 	e.Id = experimentId
+	if len(e.Kind) == 0 {
+		e.Kind = "sound"
+	}
+	if len(e.FileExtension) == 0 {
+		if e.Kind == "sound" {
+			e.FileExtension = "wav"
+		} else {
+			e.FileExtension = "png"
+		}
+	}
 	return
 }
 
@@ -59,7 +71,7 @@ func GetExperimentWordingRunString(experimentId string) (json string, err error)
 // no error is returned
 func GetExperimentWordingNewMap(experimentId string) (m map[string]string) {
 	wordingNewPath := "data/" + experimentId + "/config/wording.new.json"
-	file, err := ioutil.ReadFile(wordingNewPath)
+	file, err := os.ReadFile(wordingNewPath)
 	if err != nil {
 		return
 	}

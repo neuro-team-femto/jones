@@ -1,11 +1,14 @@
-module github.com/creamlab/revcor
+module github.com/neuro-team-femto/revcor
 
 go 1.17
 
 require (
-	github.com/evanw/esbuild v0.14.23
-	github.com/gorilla/mux v1.8.0
-	github.com/gorilla/websocket v1.5.0
+	github.com/evanw/esbuild v0.19.11
+	github.com/gorilla/mux v1.8.1
+	github.com/gorilla/websocket v1.5.1
 )
 
-require golang.org/x/sys v0.0.0-20220224003255-dbe011f71a99 // indirect
+require (
+	golang.org/x/net v0.20.0 // indirect
+	golang.org/x/sys v0.16.0 // indirect
+)

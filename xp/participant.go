@@ -3,13 +3,12 @@ package xp
 import (
 	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"math/rand"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/creamlab/revcor/helpers"
+	"github.com/neuro-team-femto/revcor/helpers"
 )
 
 type Participant struct {
@@ -29,7 +28,7 @@ func initParticipantWithInfo(es ExperimentSettings, participantId string) (Parti
 		return p, nil
 	}
 
-	file, err := ioutil.ReadFile(infoPath)
+	file, err := os.ReadFile(infoPath)
 	if err != nil {
 		return p, err
 	}
@@ -55,8 +54,8 @@ func truncatedInPlaceShuffle(input []string, max int) []string {
 func generateTodo(es ExperimentSettings, participantId string) (todos []string) {
 	length := 2 * es.TrialsPerBlock * es.BlocksPerXp
 
-	allSoundsPath := "data/" + es.Id + "/sounds"
-	sounds := helpers.FindFilesUnder(allSoundsPath, ".wav")
+	allSoundsPath := "data/" + es.Id + "/assets"
+	sounds := helpers.FindFilesUnder(allSoundsPath, "."+es.FileExtension)
 	todos = truncatedInPlaceShuffle(sounds, length)
 
 	if es.AddRepeatBlock {
@@ -81,7 +80,7 @@ func getParticipantTodo(es ExperimentSettings, participantId string) (todo []str
 		// create and save state
 		todo = generateTodo(es, participantId)
 		state := strings.Join(todo[:], "\n")
-		err = ioutil.WriteFile(todoPath, []byte(state), 0644)
+		err = os.WriteFile(todoPath, []byte(state), 0644)
 	}
 	return
 }
@@ -144,7 +143,7 @@ func (p *Participant) UpdateInfo(age, sex string) (err error) {
 	}
 
 	infoPath := "state/" + p.ExperimentId + "/" + p.Id + "/info.json"
-	err = ioutil.WriteFile(infoPath, contents, 0644)
+	err = os.WriteFile(infoPath, contents, 0644)
 	return
 }
 

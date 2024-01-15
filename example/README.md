@@ -2,7 +2,7 @@
 
 To create a new experiment, follow these instructions:
 
-1. Choose an experience ID using this character set: `a-zA-Z0-9-_`. From now on, let say you choose `experiment_3`.
+1. Choose an experience ID using this character set: `a-zA-Z0-9-_`. From now on, let say you chose `experiment_3`.
 
 If your revcor app is reachable at `https://example.com`, the root path of the experiment is `https://example.com/xp/experiment_3/`
 
@@ -10,11 +10,11 @@ If your revcor app is reachable at `https://example.com`, the root path of the e
 
 * (folder) `experiment_3/` at the same location than this README.md
 * (folder) `experiment_3/config/` to hold configuration files
-* (folder) `experiment_3/sounds/` to hold *.wav files used during the experiment, and *.txt files describing how the sounds have been generated
+* (folder) `experiment_3/assets/` to hold wav (or jpg/png for images) assets used during the experiment, plus *.txt files describing how the sounds/images have been generated
 * (folder) `experiment_3/results/` let empty at start, trials will populate it with data
 * `experiment_3/config/settings.json` JSON file (see more below)
 * `experiment_3/config/wording.json` JSON file (see more below)
-* `experiment_3/config/participants.txt` text file containing one participant ID per line (valid IDs are also made of `a-zA-Z0-9-_)
+* `experiment_3/config/participants.txt` text file containing one participant ID per line (valid IDs are also made of `a-zA-Z0-9-_`)
 
 For convenience you may in fact declare several `participants` files: any text file containing the string `participants` (in the `experiment_3/config/` folder) is considered a valid participants dictionnary.
 
@@ -22,9 +22,11 @@ For convenience you may in fact declare several `participants` files: any text f
 
 ```json
 {
-    "adminPassword": "unsecure",
+    "adminPassword": "to_change",
     "allowCreate": true,
     "createPassword": "consent",
+    "kind": "image",
+    "fileExtension": "jpg",
     "trialsPerBlock": 3,
     "blocksPerXp": 6,
     "addRepeatBlock": true
@@ -38,6 +40,8 @@ Let's review the meaning of each property:
     * if `false`, only declared participants are allowed to access this experiment. Check step 6 to see how to declare them
     * if `true`, anyone going to `https://example.com/xp/experiment_3/new` will be able to access the experiment, if they know the `createPassword` 
 * `createPassword`: password that protects the creation of participants
+* `kind` (optional): either `sound` (default) or `image`
+* `fileExtension` (optional): if you want to set the assets extension (by default `wav` for sounds, `png` for images). Supported values are: `wav`, `png` and `jpg`
 * `trialsPerBlock`: trials are grouped by blocks (with a pause between blocks), define how many trials make a block
 * `blocksPerXp`: how many blocks are in the experiment
 * `addRepeatBlock`: repeat last block (for consistency measurement). In the example above, the experiment is made of 7 (6 + 1) blocks.
@@ -71,9 +75,9 @@ Let's review the meaning of each property:
 
 **Caution**: the properties `"choice1` and `choice2` have to map actual keyboard letter keys, they are used as is to collect the participant decision.
 
-An additional `wording.new.json` file has to be provided for the participant creation page (only available if `allowCreate` is true), please check `data/example/confid.wording.new.json`.
+An additional `wording.new.json` file has to be provided for the participant creation page (only available if `allowCreate` is true), please check `example/config/wording.new.json`.
 
-5. Put wav files to be tested in `experiment_3/sounds` and add a text file defining how the sound has been generated in a CSV format. The file names need to be identical, with only the file extension changing. For instance the `gomot_a.0001.eq.wav` sound file has to be paired with `gomot_a.0001.eq.txt`, whose contents looks like:
+5. Put wav files to be tested in `experiment_3/assets` and add a text file defining how the sound has been generated in a CSV format. The file names need to be identical, with only the file extension changing. For instance the `gomot_a.0001.eq.wav` sound file has to be paired with `gomot_a.0001.eq.txt`, whose contents looks like:
 
 ```csv
 filter_freq,filter_gain
@@ -83,7 +87,7 @@ filter_freq,filter_gain
 ...
 ```
 
-Note: headers are supposed to be identical for all sounds within a given experiment.
+Note: headers are supposed to be identical for all sounds/images within a given experiment.
 
 This CSV definition is used when appending to the CSV result file. Here is an extract of a result file corresponding to the definition above (check the `filter_freq` and `filter_gain` from the definition above, and the added `param_index`):
 

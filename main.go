@@ -6,9 +6,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/creamlab/revcor/front"
-	"github.com/creamlab/revcor/helpers"
-	"github.com/creamlab/revcor/server"
+	"github.com/neuro-team-femto/revcor/front"
+	"github.com/neuro-team-femto/revcor/helpers"
+	"github.com/neuro-team-femto/revcor/server"
 )
 
 var (
@@ -17,11 +17,14 @@ var (
 
 func init() {
 	// create state folder
-	err := helpers.EnsureFolder("state")
+	err := helpers.EnsureFolder("data")
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	err = helpers.EnsureFolder("state")
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func runServer() {

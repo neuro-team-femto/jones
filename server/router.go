@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/creamlab/revcor/helpers"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+	"github.com/neuro-team-femto/revcor/helpers"
 )
 
 var (
@@ -30,7 +30,7 @@ func init() {
 		allowedOrigins = append(allowedOrigins, strings.Split(envOrigins, ",")...)
 	}
 	if os.Getenv("APP_ENV") == "DEV" {
-		allowedOrigins = append(allowedOrigins, "http://localhost:8100", "https://localhost:8100", "http://localhost:8101")
+		allowedOrigins = append(allowedOrigins, "http://localhost:8100", "https://localhost:8100")
 	}
 
 	// web prefix, for instance "/path" if DuckSoup is reachable at https://host/path
@@ -58,8 +58,8 @@ func GetRouter() *mux.Router {
 	publicRouter.PathPrefix("/scripts/").Handler(http.StripPrefix(webPrefix+"/scripts/", http.FileServer(http.Dir("./public/scripts/"))))
 	publicRouter.PathPrefix("/styles/").Handler(http.StripPrefix(webPrefix+"/styles/", http.FileServer(http.Dir("./public/styles/"))))
 
-	// serve assets under data/{experimentId]/sounds, with path rewrite
-	publicRouter.HandleFunc("/xp/{experimentId:[a-zA-Z0-9-_]+}/sounds/{file:.*}", soundHandler)
+	// serve assets under data/{experimentId]/assets, with path rewrite
+	publicRouter.HandleFunc("/xp/{experimentId:[a-zA-Z0-9-_]+}/assets/{file:.*}", soundHandler)
 
 	// run xp
 	publicRouter.HandleFunc("/xp/{experimentId:[a-zA-Z0-9-_]+}/run/{participantId:[a-zA-Z0-9-_]+}", runHandler)

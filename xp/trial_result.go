@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/creamlab/revcor/helpers"
+	"github.com/neuro-team-femto/revcor/helpers"
 )
 
 // result
@@ -36,8 +36,8 @@ func (r Result) IsValid() bool {
 var headersPrefix = []string{"subj", "trial", "block", "sex", "age", "date", "stim", "stim_order"}
 var headersSuffix = []string{"response", "rt"}
 
-func getHeaders(p Participant, r Result) (headers []string, err error) {
-	paramHeaders, err := ReadParamHeaders(p.ExperimentId, r.Stimulus)
+func getHeaders(es ExperimentSettings, r Result) (headers []string, err error) {
+	paramHeaders, err := ReadParamHeaders(es, r.Stimulus)
 	if err != nil {
 		return
 	}
@@ -68,12 +68,12 @@ func newRecord(p Participant, r Result, filterIndex int, f filter) []string {
 
 // API
 
-func WriteToCSV(p Participant, r1, r2 Result) (err error) {
-	fs1, err := ReadParamValues(p.ExperimentId, r1.Stimulus)
+func WriteToCSV(es ExperimentSettings, p Participant, r1, r2 Result) (err error) {
+	fs1, err := ReadParamValues(es, r1.Stimulus)
 	if err != nil {
 		return
 	}
-	fs2, err := ReadParamValues(p.ExperimentId, r2.Stimulus)
+	fs2, err := ReadParamValues(es, r2.Stimulus)
 	if err != nil {
 		return
 	}
@@ -81,7 +81,7 @@ func WriteToCSV(p Participant, r1, r2 Result) (err error) {
 	var records [][]string
 	path := "data/" + p.ExperimentId + "/results/" + p.Id + ".csv"
 	if !helpers.PathExists(path) {
-		headers, e := getHeaders(p, r1)
+		headers, e := getHeaders(es, r1)
 		if e != nil {
 			return e
 		}

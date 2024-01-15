@@ -1,1 +1,2 @@
-FROM golang:bullseye
+FROM golang:1.21.6-bookworm
+

@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/creamlab/revcor/xp"
 	"github.com/gorilla/websocket"
+	"github.com/neuro-team-femto/revcor/xp"
 )
 
 type participantConn struct {
 	conn *websocket.Conn
 	p    xp.Participant
+	es   xp.ExperimentSettings
 }
 
 // messages in
@@ -89,7 +90,7 @@ func (pc participantConn) loop() {
 				return
 			}
 
-			err = xp.WriteToCSV(pc.p, trial.Result1, trial.Result2)
+			err = xp.WriteToCSV(pc.es, pc.p, trial.Result1, trial.Result2)
 			if err != nil {
 				sendAndLogError(pc.conn, err, "error-trial-write")
 				return
@@ -177,6 +178,6 @@ func runWs(conn *websocket.Conn) {
 	}
 
 	// 4. client/server initialization is over, now we loop on "result" messages
-	pc := participantConn{conn, p}
+	pc := participantConn{conn, p, es}
 	pc.loop()
 }

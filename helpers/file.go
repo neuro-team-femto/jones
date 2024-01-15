@@ -3,7 +3,6 @@ package helpers
 import (
 	"bufio"
 	"bytes"
-	"io/ioutil"
 	"os"
 	"strings"
 )
@@ -23,7 +22,7 @@ func EnsureFolder(path string) error {
 }
 
 func FindFilesUnder(path string, match string) (matches []string) {
-	files, err := ioutil.ReadDir(path)
+	files, err := os.ReadDir(path)
 	if err != nil {
 		return
 	}

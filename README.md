@@ -1,9 +1,9 @@
 # revcor
 
-This project provides with a back-end for a [jspsych](https://www.jspsych.org/) revcor experience intended to compare pair of sounds generated with [cleese](https://github.com/creamlab/cleese). The main features are:
+This project provides with a back-end for a [jspsych](https://www.jspsych.org/) revcor experience intended to compare pair of sounds generated with [cleese](https://github.com/neuro-team-femto/cleese). The main features are:
 
 * enable the creation of new experiments through a few configuration files (see `data/README.md`)
-* have the jspsych (front-end) experiment interact with the server thanks to WebSockets (leveraging [golang](https://golang.org/) and [gorilla mux](https://github.com/gorilla/mux))
+* have the jspsych (front-end) experiment interact with the server thanks to WebSockets (leveraging [golang](https://golang.org/) and [gorilla/websocket](https://github.com/gorilla/websocket))
 * deployment made easy (1): build project, transfer the binary and a few folders
 * deployment made easy (2): no database needed (all configuration and state being saved to text files)
 * deployment made easy (3): the `revcor` binary comes with a HTTP server for static files (JS, CSS)
@@ -14,7 +14,7 @@ This project provides with a back-end for a [jspsych](https://www.jspsych.org/) 
 
 2. Build the `revcor` binary:
 
-```
+```sh
 go build
 ```
 
@@ -22,7 +22,7 @@ Check [Build options](#build-options) to build for different platforms.
 
 3. Build front-end assets (to the `public` folder) thanks to the `revcor` binary:
 
-```
+```sh
 APP_ENV=BUILD_FRONT ./revcor
 ```
 
@@ -40,7 +40,7 @@ Please note the `revcor` binary will automatically create an additional `state` 
 
 4. Run `revcor` (with a user with write permissions on local folder and below), at least specifying from what origins WebSockets connections are allowed:
 
-```
+```sh
 APP_ORIGINS=https://example.com ./revcor
 ```
 
@@ -54,9 +54,17 @@ Check other available settings in the [Environment variables](#environment-varia
 * `APP_ENV=DEV` to enable development mode (set a few allowed origins on localhost, watch JS files to trigger builds, enhance logs)
 * `APP_ENV=BUILD_FRONT` builds front-end assets but do not start server
 
+## Run in development
+
+```sh
+APP_ENV=DEV ./revcor
+```
+
+Go to http://localhost:8100/xp/example/new
+
 ## Create a new experiment
 
-Create a new folder in `data/` and follow the instructions in `data/README.md`.
+Create a new folder in `data/` and follow the instructions in `example/README.md`.
 
 ## Additional setup
 
@@ -80,6 +88,6 @@ autorestart=true
 
 Check available options if you build for a different machine (see [more](https://golang.org/doc/install/source#environment)) for instance:
 
-```
+```sh
 GOOS=linux GOARCH=amd64 go build
 ```

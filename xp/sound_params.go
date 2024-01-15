@@ -13,15 +13,15 @@ type filter struct {
 
 type filters []filter
 
-func getParamFile(experimentId, wavFile string) (file *os.File, err error) {
-	filterFile := strings.TrimSuffix(wavFile, ".wav") + ".txt"
-	filterPath := "data/" + experimentId + "/sounds/" + filterFile
+func getParamFile(es ExperimentSettings, asset string) (file *os.File, err error) {
+	filterFile := strings.TrimSuffix(asset, "."+es.FileExtension) + ".txt"
+	filterPath := "data/" + es.Id + "/assets/" + filterFile
 	file, err = os.Open(filterPath)
 	return
 }
 
-func ReadParamHeaders(experimentId, wavFile string) (headers []string, err error) {
-	file, err := getParamFile(experimentId, wavFile)
+func ReadParamHeaders(es ExperimentSettings, asset string) (headers []string, err error) {
+	file, err := getParamFile(es, asset)
 	if err != nil {
 		return
 	}
@@ -34,8 +34,8 @@ func ReadParamHeaders(experimentId, wavFile string) (headers []string, err error
 	return
 }
 
-func ReadParamValues(experimentId, wavFile string) (fs filters, err error) {
-	file, err := getParamFile(experimentId, wavFile)
+func ReadParamValues(es ExperimentSettings, asset string) (fs filters, err error) {
+	file, err := getParamFile(es, asset)
 	if err != nil {
 		return
 	}
