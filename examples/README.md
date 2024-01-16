@@ -27,12 +27,13 @@ If you happen want an experiment to be available in different languages, we curr
     "adminPassword": "to_change",
     "allowCreate": true,
     "createPassword": "consent",
-    "kind": "image",
-    "fileExtension": "jpg",
     "trialsPerBlock": 3,
     "blocksPerXp": 6,
     "addRepeatBlock": true,
-    "assetsPerParticipant": true
+    "assetsPerParticipant": true,
+    "kind": "image",
+    "fileExtension": "jpg",
+    "forceWidth": "350px"
 }
 ```
 
@@ -43,11 +44,12 @@ Let's review the meaning of each property:
     * if `false`, only declared participants are allowed to access this experiment. Check step 6 to see how to declare them
     * if `true`, anyone going to `https://example.com/xp/experiment_3/new` will be able to access the experiment, if they know the `createPassword` 
 * `createPassword`: password that protects the creation of participants
-* `kind` (optional): either `sound` (default) or `image`
-* `fileExtension` (optional): if you want to set the assets extension (by default `wav` for sounds, `png` for images). Supported values are: `wav`, `png` and `jpg`
 * `trialsPerBlock`: trials are grouped by blocks (with a pause between blocks), define how many trials make a block
 * `blocksPerXp`: how many blocks are in the experiment
 * `addRepeatBlock`: repeat last block (for consistency measurement). In the example above, the experiment is made of 7 (6 + 1) blocks.
+* `kind` (optional): either `sound` (default) or `image`
+* `fileExtension` (optional): if you want to set the assets extension (by default `wav` for sounds, `png` for images). Supported values are: `wav`, `png` and `jpg`
+* `forceWidth` (optional and used only for `image` kind): force the width of displayed images using the provided value as a CSS property. If not set, images are displayed in their original size
 
 4. The `wording.run.json` file configures messages displayed on screens and needs the following properties:
 

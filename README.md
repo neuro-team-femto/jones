@@ -50,9 +50,9 @@ Check other available settings in the [Environment variables](#environment-varia
 ## Environment variables
 
 * `APP_PORT=9000` (defaults to 8100) to set port listen by `revcor` server
-* `APP_ORIGINS=https://example.com` to declare a comma separated list of allowed origins for WebSocket connections
+* `APP_ORIGINS=https://example.com` to declare a comma separated list of allowed origins for WebSocket connections (`http://localhost:8100` and `https://localhost:8100` are allowed by default if `APP_ORIGINS` is not set)
 * `APP_WEB_PREFIX=/path` (empty by default) needed if, depending on your server configuration, `revcor` is served under a given path, for instance `https://example.com/path`
-* `APP_ENV=DEV` to enable development mode (set a few allowed origins on localhost, watch JS files to trigger builds, enhance logs)
+* `APP_ENV=DEV` to enable development mode (watch JS files to trigger builds, enhanced logs and allow `http://localhost:8100` and `https://localhost:8100` origins)
 * `APP_ENV=BUILD_FRONT` builds front-end assets but do not start server
 
 ## Run in development

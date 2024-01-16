@@ -29,7 +29,7 @@ func init() {
 	if len(envOrigins) > 0 {
 		allowedOrigins = append(allowedOrigins, strings.Split(envOrigins, ",")...)
 	}
-	if os.Getenv("APP_ENV") == "DEV" {
+	if os.Getenv("APP_ENV") == "DEV" || len(envOrigins) == 0 {
 		allowedOrigins = append(allowedOrigins, "http://localhost:8100", "https://localhost:8100")
 	}
 

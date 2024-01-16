@@ -12,11 +12,13 @@ type ExperimentSettings struct {
 	AdminPassword  string `json:"adminPassword"`
 	AllowCreate    bool   `json:"allowCreate"`
 	CreatePassword string `json:"createPassword"`
-	Kind           string `json:"kind"`
-	FileExtension  string `json:"fileExtension"`
 	TrialsPerBlock int    `json:"trialsPerBlock"`
 	BlocksPerXp    int    `json:"blocksPerXp"`
 	AddRepeatBlock bool   `json:"addRepeatBlock"`
+	// optional
+	Kind          string `json:"kind"`
+	FileExtension string `json:"fileExtension"`
+	ForceWidth    string `json:"forceWidth"`
 }
 
 // API

@@ -21,6 +21,10 @@ body.new-body {
     background-color: white;
 }
 
+.jspsych-content.image {
+    width: auto;
+}
+
 .jspsych-content:empty {
     display: none;
 }
@@ -42,9 +46,17 @@ body.new-body {
     font-weight: bold;
 }
 
-.choice {
+.sound-choice {
     width: 250px;
     margin: -16px auto 0;
     display: flex;
     justify-content: space-between;
+}
+
+.image-choice {
+    display: flex;
+}
+
+.image-choice > div:first-child {
+    margin-right: 40px;
 }

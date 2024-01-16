@@ -11,7 +11,7 @@ const ASSET_PREFIX = "../assets/";
 const soundTimeline = (ws, jsPsych, start, settings, wording, stimuli, position, blockStop) => ({
   prompt: `<p>[${wording.space}] <span style='font-weight:bold'> ${wording.playSounds}</span></p>
   <p>${wording.question}</p>
-  <div class='choice'>
+  <div class='sound-choice'>
     <div>[${wording.choice1}] ${wording.label1}</div>
     <div>${wording.label2} [${wording.choice2}]</div>
   </div>`,
@@ -33,7 +33,7 @@ const soundTimeline = (ws, jsPsych, start, settings, wording, stimuli, position,
       choices: " ",
       prompt: `<p><span style='font-weight:bold'>[${wording.space}]</span> ${wording.playSounds}</p>
       <p>${wording.question}</p>
-      <div class='choice'>
+      <div class='sound-choice'>
         <div>[${wording.choice1}] ${wording.label1}</div>
         <div>${wording.label2} [${wording.choice2}]</div>
       </div>`,
@@ -64,7 +64,7 @@ const soundTimeline = (ws, jsPsych, start, settings, wording, stimuli, position,
       choices: [wording.choice1, wording.choice2],
       prompt: `<p>[${wording.space}] ${wording.playSounds}</p>
       <p>${wording.question}</p>
-      <div class='choice'>
+      <div class='sound-choice'>
         <div><span class='strong'>[${wording.choice1}]</span> ${wording.label1}</div>
         <div>${wording.label2} <span class='strong'>[${wording.choice2}]</span></div>
       </div>`,
@@ -107,6 +107,7 @@ const soundTimeline = (ws, jsPsych, start, settings, wording, stimuli, position,
 
 const imageTimeline = (ws, jsPsych, start, settings, wording, stimuli, position, blockStop) => ({
   prompt: "",
+  css_classes: ['image'],
   timeline: [
     {
       type: jsPsychPreload,
@@ -124,12 +125,17 @@ const imageTimeline = (ws, jsPsych, start, settings, wording, stimuli, position,
       stimulus: "",
       choices: [wording.choice1, wording.choice2],
       prompt: () => {
+        const imgWidth = settings.forceWidth.length == 0 ? "auto" : settings.forceWidth;
         return `<p>${wording.question}</p>
-        <div class='choice'>
-          <img src="${ASSET_PREFIX}${jsPsych.timelineVariable("s1")}">
-          <img src="${ASSET_PREFIX}${jsPsych.timelineVariable("s2")}">
-          <div><span class='strong'>[${wording.choice1}]</span> ${wording.label1}</div>
-          <div>${wording.label2} <span class='strong'>[${wording.choice2}]</span></div>
+        <div class='image-choice'>
+          <div>
+            <img style="width:${imgWidth};" src="${ASSET_PREFIX}${jsPsych.timelineVariable("s1")}">
+            <div><span class='strong'>[${wording.choice1}]</span> ${wording.label1}</div>
+          </div>
+          <div>
+            <img style="width:${imgWidth};" src="${ASSET_PREFIX}${jsPsych.timelineVariable("s2")}">
+            <div>${wording.label2} <span class='strong'>[${wording.choice2}]</span></div>
+          </div>
         </div>`;
       },
       data: {

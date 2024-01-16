@@ -2,9 +2,10 @@
   "adminPassword": "unsecure",
   "allowCreate": true,
   "createPassword": "consent",
-  "kind": "image",
-  "fileExtension": "jpg",
   "trialsPerBlock": 3,
   "blocksPerXp": 2,
-  "addRepeatBlock": false
+  "addRepeatBlock": false,
+  "kind": "image",
+  "fileExtension": "jpg",
+  "forceWidth": "400px"
 }
