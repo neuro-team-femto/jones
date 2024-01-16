@@ -1,6 +1,6 @@
 module github.com/neuro-team-femto/revcor
 
-go 1.17
+go 1.21
 
 require (
 	github.com/evanw/esbuild v0.19.11

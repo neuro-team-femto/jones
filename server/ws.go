@@ -26,11 +26,6 @@ type joinData struct {
 	ParticipantId string `json:"participantId"`
 }
 
-type infoData struct {
-	Age string `json:"age"`
-	Sex string `json:"sex"`
-}
-
 type trialData struct {
 	Result1 xp.Result `json:"result1"`
 	Result2 xp.Result `json:"result2"`
@@ -107,10 +102,10 @@ func (pc participantConn) loop() {
 
 // API
 
-func runWs(conn *websocket.Conn) {
+func wsHandler(conn *websocket.Conn) {
 	defer conn.Close()
 
-	// there is an implied protocol to be followed:
+	// there is an ordered protocol to follow:
 	// 1. first received message *must* be a "join"
 	joinMsg := messageIn{}
 	err := conn.ReadJSON(&joinMsg)
@@ -136,7 +131,8 @@ func runWs(conn *websocket.Conn) {
 		return
 	}
 
-	p, err := xp.LoadParticipant(es, join.ParticipantId)
+	// create or get from saved state
+	p, err := xp.InitParticipant(es, join.ParticipantId)
 	if err != nil {
 		return
 	}
@@ -156,7 +152,7 @@ func runWs(conn *websocket.Conn) {
 	}
 
 	// 3. if participant info is empty, the next received message *must* be a "info"
-	if p.Age == "" || p.Sex == "" {
+	if es.CollectsInfo() && !p.InfoCollected {
 		infoMsg := messageIn{}
 		err := conn.ReadJSON(&infoMsg)
 		if err != nil || infoMsg.Kind != "info" {
@@ -164,14 +160,14 @@ func runWs(conn *websocket.Conn) {
 			return
 		}
 
-		info := infoData{}
+		var info xp.StrMap
 		err = json.Unmarshal([]byte(infoMsg.Payload), &info)
 		if err != nil {
 			sendAndLogError(conn, err, "error-info-invalid")
 			return
 		}
 
-		err = p.UpdateInfo(info.Age, info.Sex)
+		err = p.UpdateInfo(info)
 		if err != nil {
 			sendAndLogError(conn, err, "error-info-save")
 			return

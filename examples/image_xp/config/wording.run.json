@@ -1,8 +1,6 @@
 {
   "title": "Le sourire des images",
   "collect": "Merci de renseigner les informations suivantes :",
-  "collectAge": "âge",
-  "collectSex": "sexe",
   "collectButton": "Valider",
   "introduction": "Dans cette expérience, vous allez comparer des images : nous vous demandons de juger laquelle vous semble être la plus souriante.",
   "pause": "Nous vous proposons une pause de quelques secondes",

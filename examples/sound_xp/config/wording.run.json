@@ -1,8 +1,6 @@
 {
   "title": "Le sourire des sons",
   "collect": "Merci de renseigner les informations suivantes :",
-  "collectAge": "âge",
-  "collectSex": "sexe",
   "collectButton": "Valider",
   "introduction": "Dans cette expérience, vous allez entendre des exemples de prononciations du son /a/, et nous vous demandons de juger laquelle vous semble avoir été prononcée avec le plus de sourire.",
   "pause": "Nous vous proposons une pause de quelques secondes",

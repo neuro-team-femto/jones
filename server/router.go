@@ -52,7 +52,7 @@ func GetRouter() *mux.Router {
 	publicRouter := router.PathPrefix(webPrefix).Subrouter()
 
 	// websocket handler
-	publicRouter.HandleFunc("/ws", websocketHandler)
+	publicRouter.HandleFunc("/ws", upgradeHandler)
 
 	// serve assets (js & css) under front/public
 	publicRouter.PathPrefix("/scripts/").Handler(http.StripPrefix(webPrefix+"/scripts/", http.FileServer(http.Dir("./public/scripts/"))))

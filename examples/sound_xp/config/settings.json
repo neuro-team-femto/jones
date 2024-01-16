@@ -4,5 +4,18 @@
   "createPassword": "consent",
   "trialsPerBlock": 3,
   "blocksPerXp": 4,
-  "addRepeatBlock": true
+  "addRepeatBlock": true,
+  "collectInfo": [
+    {
+      "key": "age",
+      "label": "âge",
+      "inputType": "text",
+      "pattern": "[0-9]*"
+    },
+    {
+      "key": "sex",
+      "label": "sexe",
+      "inputType": "text"
+    }
+  ]
 }

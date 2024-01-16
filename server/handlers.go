@@ -13,7 +13,7 @@ import (
 )
 
 // handle incoming websockets
-func websocketHandler(w http.ResponseWriter, r *http.Request) {
+func upgradeHandler(w http.ResponseWriter, r *http.Request) {
 	// upgrade HTTP request to Websocket
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -21,7 +21,7 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	runWs(conn)
+	wsHandler(conn)
 }
 
 func assetHandler(w http.ResponseWriter, r *http.Request) {

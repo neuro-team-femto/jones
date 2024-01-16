@@ -27,19 +27,19 @@ const pairs = (arr) =>
 export default (props, ws) => {
   // init
   const { settings, wording, participant } = props;
+  console.log(settings)
   const jsPsych = initJsPsych({
     display_element: "jspsych-root",
     on_finish: function () {
       state.jsPsych.data.displayData();
     },
   });
-  const todo = participant.todo.split(",");
   const blocks = settings.addRepeatBlock
     ? settings.blocksPerXp + 1
     : settings.blocksPerXp;
 
   const totalLength = blocks * settings.trialsPerBlock;
-  const remainingLength = todo.length / 2; // 2 choices per trial
+  const remainingLength = participant.todo.length / 2; // 2 choices per trial
   const previouslyDoneLength = totalLength - remainingLength; // not 0 if user reconnects (page refresh for instance)
   const position = {
     trial: previouslyDoneLength,
@@ -52,7 +52,7 @@ export default (props, ws) => {
   state.settings = settings;
   state.wording = wording;
   state.start = new Date().toISOString();
-  state.stimuli = pairs(todo, 2);
+  state.stimuli = pairs(participant.todo, 2);
   state.jsPsych = jsPsych;
   state.position = position;
   state.totalLength = totalLength;
@@ -72,20 +72,20 @@ export default (props, ws) => {
     });
   } else {
     // form to collect participant info
-    if (participant.age.length === 0 || participant.sex.length === 0) {
+    if (settings.collectInfo && settings.collectInfo.length > 0 && !participant.infoCollected) {
       timeline.push({
         type: jsPsychSurveyHtmlForm,
         preamble: `<p>${wording.collect}</p>`,
-        html: `<p>
-          <fieldset>
-            <label>${wording.collectAge}</label>
-            <input id="age" name="age" type="text" minlength="2" maxlength="3" pattern="[0-9]*" required />
-          </fieldset>
-          <fieldset>
-            <label>${wording.collectSex}</label>
-            <input name="sex" type="text" maxlength="16" required />
-          </fieldset>
-        </p>`,
+        html: () => {
+          const fieldsets = settings.collectInfo.map((i) => {
+            let pattern = !!i.pattern ? `pattern="${i.pattern}"` : "";
+            return ` <fieldset>
+              <label>${i.label}</label>
+              <input id="${i.key}" name="${i.key}" type="${i.inputType}" ${pattern} required />
+            </fieldset>`;
+          }).join('');
+          return `<p>${fieldsets}</p>`;
+        },
         autofocus: "age",
         button_label: wording.collectButton,
         on_finish: (data) => {

@@ -7,6 +7,13 @@ import (
 	"github.com/neuro-team-femto/revcor/helpers"
 )
 
+type Field struct {
+	Key       string `json:"key"`
+	Label     string `json:"label"`
+	InputType string `json:"inputType"`
+	Pattern   string `json:"pattern"`
+}
+
 type ExperimentSettings struct {
 	Id             string `json:"id"`
 	AdminPassword  string `json:"adminPassword"`
@@ -16,13 +23,19 @@ type ExperimentSettings struct {
 	BlocksPerXp    int    `json:"blocksPerXp"`
 	AddRepeatBlock bool   `json:"addRepeatBlock"`
 	// optional
-	Kind          string `json:"kind"`
-	FileExtension string `json:"fileExtension"`
-	ForceWidth    string `json:"forceWidth"`
-	ShowProgress  bool   `json:"showProgress"`
+	Kind          string  `json:"kind"`
+	FileExtension string  `json:"fileExtension"`
+	ForceWidth    string  `json:"forceWidth"`
+	ShowProgress  bool    `json:"showProgress"`
+	CollectInfo   []Field `json:"collectInfo"`
 }
 
 // API
+
+func (es ExperimentSettings) CollectsInfo() bool {
+	return len(es.CollectInfo) > 0
+}
+
 // Check if ids sent by client are valid (match a regex + configuration file exists)
 func IsExperimentValid(experimentId string) bool {
 	// check IDs format

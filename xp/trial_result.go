@@ -33,16 +33,15 @@ func (r Result) IsValid() bool {
 
 // record formatting
 
-var headers1 = []string{"subj", "trial", "block", "date", "stim", "stim_order", "response", "rt"}
-var headers2 = []string{"sex", "age"}
+var introHeaders = []string{"subj", "trial", "block", "date", "stim", "stim_order", "response", "rt"}
 
-func genRecordHeaders(es ExperimentSettings, r Result) (headers []string, err error) {
+func genRecordHeaders(es ExperimentSettings, p Participant, r Result) (headers []string, err error) {
 	paramHeaders, err := getAssetDefHeaders(es, r.Stimulus)
 	if err != nil {
 		return
 	}
-	headers = append(headers, headers1...)
-	headers = append(headers, headers2...)
+	headers = append(headers, introHeaders...)
+	headers = append(headers, p.getInfoKeys()...)
 	headers = append(headers, "param_index")
 	headers = append(headers, paramHeaders...)
 	return
@@ -58,10 +57,10 @@ func newRecord(p Participant, r Result, index int, values []string) []string {
 		r.Order,
 		r.Response,
 		r.Rt,
-		p.Sex,
-		p.Age,
 		fmt.Sprint(index),
 	}
+	record = append(record, p.getInfoValues()...)
+	record = append(record, fmt.Sprint(index))
 	record = append(record, values...)
 	return record
 }
@@ -81,7 +80,7 @@ func WriteToCSV(es ExperimentSettings, p Participant, r1, r2 Result) (err error)
 	var records [][]string
 	path := "data/" + p.ExperimentId + "/results/" + p.Id + ".csv"
 	if !helpers.PathExists(path) {
-		headers, e := genRecordHeaders(es, r1)
+		headers, e := genRecordHeaders(es, p, r1)
 		if e != nil {
 			return e
 		}

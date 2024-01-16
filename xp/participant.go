@@ -5,44 +5,49 @@ import (
 	"errors"
 	"math/rand"
 	"os"
-	"strings"
+	"slices"
 
 	"github.com/neuro-team-femto/revcor/helpers"
 )
 
+type StrMap map[string]string
+
 type Participant struct {
-	Id           string `json:"id"`
-	ExperimentId string `json:"experimentId"`
-	Todo         string `json:"todo"`
-	Age          string `json:"age"`
-	Sex          string `json:"sex"`
+	Id            string   `json:"id"`
+	ExperimentId  string   `json:"experimentId"`
+	Todo          []string `json:"todo"`
+	InfoCollected bool     `json:"infoCollected"`
+	Info          StrMap   `json:"info,omitempty"`
+	// not serialized
+	infoKeys []string
 }
 
-func getStateFolder(experimentId, participantId string) string {
-	return "data/" + experimentId + "/state/" + participantId + "/"
+func getStateFolder(experimentId string) string {
+	return "data/" + experimentId + "/state/"
 }
 
-func initParticipantWithInfo(es ExperimentSettings, participantId string) (Participant, error) {
-	p := Participant{Id: participantId, ExperimentId: es.Id}
-	stateFolder := getStateFolder(es.Id, participantId)
-	helpers.EnsureFolder(stateFolder)
-	infoPath := stateFolder + "info.json"
+func (p *Participant) getStateFile() string {
+	return getStateFolder(p.ExperimentId) + p.Id + ".json"
+}
 
-	// check if participant is new (not considered an error!)
-	if _, silentErr := os.Stat(infoPath); errors.Is(silentErr, os.ErrNotExist) {
-		return p, nil
+func (p *Participant) getInfoKeys() []string {
+	if len(p.infoKeys) == 0 {
+		var keys []string
+		for k := range p.Info {
+			keys = append(keys, k)
+		}
+		// ensure order
+		slices.Sort(keys)
+		p.infoKeys = keys
 	}
+	return p.infoKeys
+}
 
-	file, err := os.ReadFile(infoPath)
-	if err != nil {
-		return p, err
+func (p *Participant) getInfoValues() (values []string) {
+	for _, k := range p.getInfoKeys() {
+		values = append(values, p.Info[k])
 	}
-
-	if err = json.Unmarshal([]byte(file), &p); err != nil {
-		return p, err
-	}
-
-	return p, nil
+	return
 }
 
 func truncatedInPlaceShuffle(input []string, max int) []string {
@@ -73,18 +78,13 @@ func generateTodo(es ExperimentSettings, participantId string) (todos []string) 
 	return
 }
 
-func getParticipantTodo(es ExperimentSettings, participantId string) (todo []string, err error) {
-	todoPath := getStateFolder(es.Id, participantId) + "todo.txt"
-
-	if helpers.PathExists(todoPath) {
-		// load from state
-		todo, err = helpers.ReadFileLines(todoPath)
-	} else {
-		// create and save state
-		todo = generateTodo(es, participantId)
-		state := strings.Join(todo[:], "\n")
-		err = os.WriteFile(todoPath, []byte(state), 0644)
+func (p *Participant) saveState() (err error) {
+	contents, err := json.MarshalIndent(p, "", "  ")
+	if err != nil {
+		return
 	}
+
+	err = os.WriteFile(p.getStateFile(), contents, 0644)
 	return
 }
 
@@ -115,45 +115,45 @@ func IsParticipantValid(experimentId, participantId string) bool {
 	return DoesParticipantExist(experimentId, participantId)
 }
 
-func LoadParticipant(es ExperimentSettings, participantId string) (p Participant, err error) {
-	p, err = initParticipantWithInfo(es, participantId)
-	if err != nil {
-		return
+func InitParticipant(es ExperimentSettings, participantId string) (p Participant, err error) {
+	p = Participant{Id: participantId, ExperimentId: es.Id}
+
+	stateFolder := getStateFolder(es.Id)
+	helpers.EnsureFolder(stateFolder)
+
+	stateFile := p.getStateFile()
+	// check if participant is new (not considered an error!)
+	if _, silentErr := os.Stat(stateFile); errors.Is(silentErr, os.ErrNotExist) {
+		p.InfoCollected = false
+		p.Todo = generateTodo(es, participantId)
+		p.saveState()
+		return p, nil
+	} else {
+		file, err := os.ReadFile(stateFile)
+		if err != nil {
+			return p, err
+		}
+		if err = json.Unmarshal([]byte(file), &p); err != nil {
+			return p, err
+		}
+		return p, nil
 	}
-	// add fields
-	todo, err := getParticipantTodo(es, participantId)
-	p.Todo = strings.Join(todo, ",")
-	return
+
 }
 
-func (p *Participant) UpdateInfo(age, sex string) (err error) {
-	// update p
-	p.Age = age
-	p.Sex = sex
-
-	// save to file (filter todo field)
-	toSave := map[string]string{
-		"id":           p.Id,
-		"experimentId": p.ExperimentId,
-		"age":          age,
-		"sex":          sex,
-	}
-	contents, err := json.MarshalIndent(toSave, "", "  ")
-	if err != nil {
-		return
-	}
-
-	infoPath := getStateFolder(p.ExperimentId, p.Id) + "info.json"
-	err = os.WriteFile(infoPath, contents, 0644)
-	return
+func (p *Participant) UpdateInfo(info StrMap) (err error) {
+	p.Info = info
+	p.InfoCollected = true
+	return p.saveState()
 }
 
 func (p *Participant) UpdateTodo(stimuli1, stimuli2 string) (err error) {
-	todoPath := getStateFolder(p.ExperimentId, p.Id) + "todo.txt"
-	if helpers.PathExists(todoPath) {
-		helpers.RemoveOnceFromFile(todoPath, stimuli1, stimuli2)
-	} else {
-		return errors.New("missing-todo")
+	var newTodo []string
+	for _, t := range p.Todo {
+		if t != stimuli1 && t != stimuli2 {
+			newTodo = append(newTodo, t)
+		}
 	}
-	return
+	p.Todo = newTodo
+	return p.saveState()
 }

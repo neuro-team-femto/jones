@@ -24,17 +24,30 @@ If you happen want an experiment to be available in different languages, we curr
 
 ```json
 {
-    "adminPassword": "to_change",
-    "allowCreate": true,
-    "createPassword": "consent",
-    "trialsPerBlock": 3,
-    "blocksPerXp": 6,
-    "addRepeatBlock": true,
-    "assetsPerParticipant": true,
-    "kind": "image",
-    "fileExtension": "jpg",
-    "forceWidth": "350px",
-    "showProgress": true
+  "adminPassword": "to_change",
+  "allowCreate": true,
+  "createPassword": "consent",
+  "trialsPerBlock": 3,
+  "blocksPerXp": 6,
+  "addRepeatBlock": true,
+  "assetsPerParticipant": true,
+  "kind": "image",
+  "fileExtension": "jpg",
+  "forceWidth": "350px",
+  "showProgress": true,
+  "collectInfo": [
+    {
+      "key": "age",
+      "label": "âge",
+      "kind": "text",
+      "pattern": "[0-9]*"
+    },
+    {
+      "key": "sex",
+      "label": "sexe",
+      "kind": "text"
+    }
+  ]
 }
 ```
 
@@ -52,6 +65,11 @@ Let's review the meaning of each property:
 * `fileExtension` (optional): if you want to set the assets extension (by default `wav` for sounds, `png` for images). Supported values are: `wav`, `png` and `jpg`
 * `forceWidth` (optional and used only for `image` kind): force the width of displayed images using the provided value as a CSS property. If not set, images are displayed in their original size
 * `showProgress` (optional and false by default): show the progress (in the form `trials done/total count`) at the right bottom corner
+* `collectInfo` (optional, no HTML form if empty): add info definition to be collected before the trials in a HTML form, with the following subproperties:
+  - `key` the column header corresponding to that piece of data in CSV results
+  - `label` the displayed label in the HTML form
+  - `kind` the HTML input type attribute
+  - `pattern` the HTML input pattern attribute
 
 4. The `wording.run.json` file configures messages displayed on screens and needs the following properties:
 
@@ -59,8 +77,6 @@ Let's review the meaning of each property:
 {
     "title": "The smile of sounds",
     "collect": "Please fill in the following information:",
-    "collectAge": "age",
-    "collectSex": "sex",
     "collectButton": "Continue",
     "introduction": "In this experiment, you will hear examples of pronunciations of the sound /a/, and we ask you to judge which one you think was pronounced with the most smile.",
     "pause": "Let's pause for a few seconds",
