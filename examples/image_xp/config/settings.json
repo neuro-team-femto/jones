@@ -7,5 +7,6 @@
   "addRepeatBlock": false,
   "kind": "image",
   "fileExtension": "jpg",
-  "forceWidth": "400px"
+  "forceWidth": "400px",
+  "showProgress": true
 }

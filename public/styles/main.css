@@ -12,6 +12,20 @@ body.new-body {
     align-items: center;
 }
 
+body, #jspsych-root {
+    margin: 0px;
+    height: 100%;
+    width: 100%;
+}
+
+#progress {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    color: #888;
+    margin: 8px 12px;
+}
+
 .jspsych-content {
     width: 600px;
     padding: 20px 30px;

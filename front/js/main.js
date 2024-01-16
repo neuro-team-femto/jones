@@ -19,7 +19,7 @@ const init = () => {
   const ws = new WebSocket(signalingUrl);
 
   ws.onopen = () => {
-    const { experimentId, participantId } = window.state;
+    const { experimentId, participantId } = window.stateIds;
     ws.send(
       JSON.stringify({
         kind: "join",

@@ -19,6 +19,7 @@ type ExperimentSettings struct {
 	Kind          string `json:"kind"`
 	FileExtension string `json:"fileExtension"`
 	ForceWidth    string `json:"forceWidth"`
+	ShowProgress  bool   `json:"showProgress"`
 }
 
 // API

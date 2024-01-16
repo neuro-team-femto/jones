@@ -3,7 +3,6 @@ package xp
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"math/rand"
 	"os"
 	"strings"
@@ -50,7 +49,6 @@ func truncatedInPlaceShuffle(input []string, max int) []string {
 	if len(input) == 0 {
 		return nil
 	}
-	log.Println(input, max)
 	rand.Shuffle(len(input), func(i, j int) {
 		input[i], input[j] = input[j], input[i]
 	})

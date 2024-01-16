@@ -33,7 +33,8 @@ If you happen want an experiment to be available in different languages, we curr
     "assetsPerParticipant": true,
     "kind": "image",
     "fileExtension": "jpg",
-    "forceWidth": "350px"
+    "forceWidth": "350px",
+    "showProgress": true
 }
 ```
 
@@ -50,6 +51,7 @@ Let's review the meaning of each property:
 * `kind` (optional): either `sound` (default) or `image`
 * `fileExtension` (optional): if you want to set the assets extension (by default `wav` for sounds, `png` for images). Supported values are: `wav`, `png` and `jpg`
 * `forceWidth` (optional and used only for `image` kind): force the width of displayed images using the provided value as a CSS property. If not set, images are displayed in their original size
+* `showProgress` (optional and false by default): show the progress (in the form `trials done/total count`) at the right bottom corner
 
 4. The `wording.run.json` file configures messages displayed on screens and needs the following properties:
 
