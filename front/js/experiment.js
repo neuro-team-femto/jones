@@ -5,7 +5,9 @@ const state = {};
 const shared = {
   inBlock: (done, trialsPerBlock) => Math.floor(done / trialsPerBlock),
   updateProgress: () => {
-    document.getElementById("progress").innerHTML = `${state.position.trial + 1}/${state.totalLength}`;
+    document.getElementById("progress").innerHTML = `${
+      state.position.trial + 1
+    }/${state.totalLength}`;
   },
   showProgress: () => {
     if (state.settings.showProgress) {
@@ -14,20 +16,19 @@ const shared = {
   },
   hideProgress: () => {
     document.getElementById("progress").style = "display: none;";
-  }
+  },
 };
 
 const pairs = (arr) =>
   Array.from(new Array(Math.ceil(arr.length / 2)), (_, i) => {
     const pair = arr.slice(i * 2, i * 2 + 2);
-    return { s1: pair[0], s2: pair[1] };
+    return { asset1: pair[0], asset2: pair[1] };
   });
 
 // build and run experiment
 export default (props, ws) => {
   // init
   const { settings, wording, participant } = props;
-  console.log(settings)
   const jsPsych = initJsPsych({
     display_element: "jspsych-root",
     on_finish: function () {
@@ -46,13 +47,19 @@ export default (props, ws) => {
     block: shared.inBlock(previouslyDoneLength, settings.trialsPerBlock),
   };
   const timeline = [];
+  let stimuli;
+  if (settings.nInterval === 1) {
+    stimuli = participant.todo.map((t) => ({ asset: t}));
+  } else {
+    stimuli = pairs(participant.todo, 2);
+  }
 
   // shared state
   state.ws = ws;
   state.settings = settings;
   state.wording = wording;
   state.start = new Date().toISOString();
-  state.stimuli = pairs(participant.todo, 2);
+  state.stimuli = stimuli;
   state.jsPsych = jsPsych;
   state.position = position;
   state.totalLength = totalLength;
@@ -72,21 +79,27 @@ export default (props, ws) => {
     });
   } else {
     // form to collect participant info
-    if (settings.collectInfo && settings.collectInfo.length > 0 && !participant.infoCollected) {
+    if (
+      settings.collectInfo &&
+      settings.collectInfo.length > 0 &&
+      !participant.infoCollected
+    ) {
       timeline.push({
         type: jsPsychSurveyHtmlForm,
         preamble: `<p>${wording.collect}</p>`,
         html: () => {
-          const fieldsets = settings.collectInfo.map((i) => {
-            let pattern = !!i.pattern ? `pattern="${i.pattern}"` : "";
-            let min = !!i.min ? `min="${i.min}"` : "";
-            let max = !!i.max ? `max="${i.max}"` : "";
-            let step = !!i.min && !!i.max ? `step="1"` : "";
-            return ` <fieldset>
+          const fieldsets = settings.collectInfo
+            .map((i) => {
+              let pattern = !!i.pattern ? `pattern="${i.pattern}"` : "";
+              let min = !!i.min ? `min="${i.min}"` : "";
+              let max = !!i.max ? `max="${i.max}"` : "";
+              let step = !!i.min && !!i.max ? `step="1"` : "";
+              return ` <fieldset>
               <label>${i.label}</label>
               <input id="${i.key}" name="${i.key}" type="${i.inputType}" ${pattern} ${min} ${max} ${step} required />
             </fieldset>`;
-          }).join('');
+            })
+            .join("");
           return `<p>${fieldsets}</p>`;
         },
         autofocus: "age",
@@ -111,10 +124,15 @@ export default (props, ws) => {
       choices: " ",
     });
 
-
     // choose main timeline
-    const mainTimeline =
-      settings.kind === "sound" ? timelines.sounds : timelines.images;
+    let mainTimeline;
+    if (settings.nInterval === 1) {
+      mainTimeline =
+        settings.kind === "sound" ? timelines.soundsN1 : timelines.imagesN1;
+    } else {
+      mainTimeline =
+        settings.kind === "sound" ? timelines.soundsN2 : timelines.imagesN2;
+    }
     timeline.push(mainTimeline(state, shared));
 
     // display end message

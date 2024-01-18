@@ -61,10 +61,10 @@ body, #jspsych-root {
 }
 
 .sound-choice {
-    width: 250px;
+    width: 400px;
     margin: -16px auto 0;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
 }
 
 .image-choice {
@@ -73,4 +73,8 @@ body, #jspsych-root {
 
 .image-choice > div:first-child {
     margin-right: 40px;
+}
+
+.gap {
+    width: 5%;
 }

@@ -18,7 +18,7 @@ const genBlockStop = (state, shared) => {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: `<p>${wording.pauseOver}</p>`,
         prompt: `<p><span class='strong'>[${wording.space}]</span> ${wording.next}</p>`,
-        choices: " ",
+        choices: " ", // press space to next step
       },
     ],
     on_start: hideProgress,
@@ -34,7 +34,34 @@ const genBlockStop = (state, shared) => {
 }
 
 // higher-order function 
-const trialSubmitTwoIntervals = (state, shared) => {
+const trialSubmitN1 = (state, shared) => {
+  const { jsPsych, position, settings, start, wording, ws } = state;
+  const { inBlock, updateProgress } = shared;
+  
+  return (data) => {
+    const result = {
+      trial: position.trial.toString(),
+      block: position.block.toString(),
+      stimulus: jsPsych.timelineVariable("asset"),
+      order: "0",
+      response: data.response === wording.keyAlt1 ? wording.labelAlt1 : wording.labelAlt2,
+      rt: data.rt.toString(),
+      date: start,
+    };
+    position.trial++;
+    position.block = inBlock(position.trial, settings.trialsPerBlock);
+    updateProgress();
+  
+    ws.send(
+      JSON.stringify({
+        kind: "trial",
+        payload: JSON.stringify({ result1, result2 }),
+      })
+    );
+  }
+};
+
+const trialSubmitN2 = (state, shared) => {
   const { jsPsych, position, settings, start, wording, ws } = state;
   const { inBlock, updateProgress } = shared;
   
@@ -42,18 +69,18 @@ const trialSubmitTwoIntervals = (state, shared) => {
     const result1 = {
       trial: position.trial.toString(),
       block: position.block.toString(),
-      stimulus: jsPsych.timelineVariable("s1"),
+      stimulus: jsPsych.timelineVariable("asset1"),
       order: "0",
-      response: data.response === wording.choice1 ? "True" : "False",
+      response: data.response === wording.keyAlt1 ? "True" : "False",
       rt: data.rt.toString(),
       date: start,
     };
     const result2 = {
       trial: position.trial.toString(),
       block: position.block.toString(),
-      stimulus: jsPsych.timelineVariable("s2"),
+      stimulus: jsPsych.timelineVariable("asset2"),
       order: "1",
-      response: data.response === wording.choice2 ? "True" : "False",
+      response: data.response === wording.keyAlt2 ? "True" : "False",
       rt: data.rt.toString(),
       date: start,
     };
@@ -73,7 +100,7 @@ const trialSubmitTwoIntervals = (state, shared) => {
 
 // API
 
-export const sounds = (state, shared) => {
+export const soundsN1 = (state, shared) => {
   const { jsPsych, wording, stimuli } = state;
   const { showProgress } = shared;
 
@@ -83,8 +110,8 @@ export const sounds = (state, shared) => {
     prompt: `<p>[${wording.space}] <span style='font-weight:bold'> ${wording.playSounds}</span></p>
     <p>${wording.question}</p>
     <div class='sound-choice'>
-      <div>[${wording.choice1}] ${wording.label1}</div>
-      <div>${wording.label2} [${wording.choice2}]</div>
+      <div>[${wording.keyAlt1}] ${wording.labelAlt1}</div>
+      <div>${wording.labelAlt2} [${wording.keyAlt2}]</div>
     </div>`,
     // actual timeline
     timeline: [
@@ -92,8 +119,7 @@ export const sounds = (state, shared) => {
         type: jsPsychPreload,
         audio: () => {
           return [
-            `${ASSET_PREFIX}${jsPsych.timelineVariable("s1")}`,
-            `${ASSET_PREFIX}${jsPsych.timelineVariable("s2")}`,
+            `${ASSET_PREFIX}${jsPsych.timelineVariable("asset")}`,
           ];
         },
         show_progress_bar: false,
@@ -103,17 +129,83 @@ export const sounds = (state, shared) => {
       {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: "",
-        choices: " ",
+        choices: " ", // press space to next step
         prompt: `<p><span style='font-weight:bold'>[${wording.space}]</span> ${wording.playSounds}</p>
         <p>${wording.question}</p>
         <div class='sound-choice'>
-          <div>[${wording.choice1}] ${wording.label1}</div>
-          <div>${wording.label2} [${wording.choice2}]</div>
+          <div>[${wording.keyAlt1}] ${wording.labelAlt1}</div>
+          <div>${wording.labelAlt2} [${wording.keyAlt2}]</div>
         </div>`,
       },
       {
         type: jsPsychAudioKeyboardResponse,
-        stimulus: () => `${ASSET_PREFIX}${jsPsych.timelineVariable("s1")}`,
+        stimulus: () => `${ASSET_PREFIX}${jsPsych.timelineVariable("asset")}`,
+        choices: "NO_KEYS",
+        trial_ends_after_audio: true,
+        response_allowed_while_playing: false,
+      },
+      {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: "",
+        choices: [wording.keyAlt1, wording.keyAlt2],
+        prompt: `<p>[${wording.space}] ${wording.playSounds}</p>
+        <p>${wording.question}</p>
+        <div class='sound-choice'>
+          <div><span class='strong'>[${wording.keyAlt1}]</span> ${wording.labelAlt1}</div>
+          <div>${wording.labelAlt2} <span class='strong'>[${wording.keyAlt2}]</span></div>
+        </div>`,
+        data: {
+          answered: true,
+        },
+        on_finish: trialSubmitN1(state, shared),
+      },
+      blockStop,
+    ],
+    timeline_variables: stimuli,
+  };
+}
+
+export const soundsN2 = (state, shared) => {
+  const { jsPsych, wording, stimuli } = state;
+  const { showProgress } = shared;
+
+  const blockStop = genBlockStop(state, shared);
+  return {
+    // default value preventing text flickering when loading assets
+    prompt: `<p>[${wording.space}] <span style='font-weight:bold'> ${wording.playSounds}</span></p>
+    <p>${wording.question}</p>
+    <div class='sound-choice'>
+      <div>[${wording.keyAlt1}] ${wording.labelAlt1}</div>
+      <div>${wording.labelAlt2} [${wording.keyAlt2}]</div>
+    </div>`,
+    // actual timeline
+    timeline: [
+      {
+        type: jsPsychPreload,
+        audio: () => {
+          return [
+            `${ASSET_PREFIX}${jsPsych.timelineVariable("asset1")}`,
+            `${ASSET_PREFIX}${jsPsych.timelineVariable("asset2")}`,
+          ];
+        },
+        show_progress_bar: false,
+        post_trial_gap: 200,
+        on_start: showProgress,
+      },
+      {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: "",
+        choices: " ", // press space to next step
+        prompt: `<p><span style='font-weight:bold'>[${wording.space}]</span> ${wording.playSounds}</p>
+        <p>${wording.question}</p>
+        <div class='sound-choice'>
+          <div>[${wording.keyAlt1}] ${wording.labelAlt1}</div>
+          <div>${wording.labelAlt2} [${wording.keyAlt2}]</div>
+        </div>`,
+      },
+      {
+        type: jsPsychAudioKeyboardResponse,
+        stimulus: () => `${ASSET_PREFIX}${jsPsych.timelineVariable("asset1")}`,
         choices: "NO_KEYS",
         trial_ends_after_audio: true,
         response_allowed_while_playing: false,
@@ -126,7 +218,7 @@ export const sounds = (state, shared) => {
       },
       {
         type: jsPsychAudioKeyboardResponse,
-        stimulus: () => `${ASSET_PREFIX}${jsPsych.timelineVariable("s2")}`,
+        stimulus: () => `${ASSET_PREFIX}${jsPsych.timelineVariable("asset2")}`,
         choices: "NO_KEYS",
         trial_ends_after_audio: true,
         response_allowed_while_playing: false,
@@ -134,17 +226,17 @@ export const sounds = (state, shared) => {
       {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: "",
-        choices: [wording.choice1, wording.choice2],
+        choices: [wording.keyAlt1, wording.keyAlt2],
         prompt: `<p>[${wording.space}] ${wording.playSounds}</p>
         <p>${wording.question}</p>
         <div class='sound-choice'>
-          <div><span class='strong'>[${wording.choice1}]</span> ${wording.label1}</div>
-          <div>${wording.label2} <span class='strong'>[${wording.choice2}]</span></div>
+          <div><span class='strong'>[${wording.keyAlt1}]</span> ${wording.labelAlt1}</div>
+          <div>${wording.labelAlt2} <span class='strong'>[${wording.keyAlt2}]</span></div>
         </div>`,
         data: {
           answered: true,
         },
-        on_finish: trialSubmitTwoIntervals(state, shared),
+        on_finish: trialSubmitN2(state, shared),
       },
       blockStop,
     ],
@@ -152,7 +244,7 @@ export const sounds = (state, shared) => {
   };
 };
 
-export const images = (state, shared) => {
+export const imagesN1 = (state, shared) => {
   const { jsPsych, settings, wording, stimuli } = state;
   const { showProgress } = shared;
 
@@ -166,8 +258,7 @@ export const images = (state, shared) => {
         type: jsPsychPreload,
         images: () => {
           return [
-            `${ASSET_PREFIX}${jsPsych.timelineVariable("s1")}`,
-            `${ASSET_PREFIX}${jsPsych.timelineVariable("s2")}`,
+            `${ASSET_PREFIX}${jsPsych.timelineVariable("asset")}`,
           ];
         },
         on_start: showProgress,
@@ -177,26 +268,22 @@ export const images = (state, shared) => {
       {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: "",
-        choices: [wording.choice1, wording.choice2],
+        choices: [wording.keyAlt1, wording.keyAlt2],
         prompt: () => {
           const imgWidth =
             settings.forceWidth.length == 0 ? "auto" : settings.forceWidth;
           return `<p>${wording.question}</p>
           <div class='image-choice'>
+            <img style="width:${imgWidth};" src="${ASSET_PREFIX}${jsPsych.timelineVariable(
+          "asset")}">
             <div>
-              <img style="width:${imgWidth};" src="${ASSET_PREFIX}${jsPsych.timelineVariable(
-              "s1"
-            )}">
-              <div><span class='strong'>[${wording.choice1}]</span> ${
-              wording.label1
+              <div><span class='strong'>[${wording.keyAlt1}]</span> ${
+              wording.labelAlt1
             }</div>
             </div>
             <div>
-              <img style="width:${imgWidth};" src="${ASSET_PREFIX}${jsPsych.timelineVariable(
-              "s2"
-            )}">
-              <div>${wording.label2} <span class='strong'>[${
-              wording.choice2
+              <div>${wording.labelAlt2} <span class='strong'>[${
+              wording.keyAlt2
             }]</span></div>
             </div>
           </div>`;
@@ -204,7 +291,67 @@ export const images = (state, shared) => {
         data: {
           answered: true,
         },
-        on_finish: trialSubmitTwoIntervals(state, shared),
+        on_finish: trialSubmitN1(state, shared),
+      },
+      blockStop,
+    ],
+    timeline_variables: stimuli,
+  };
+}
+
+export const imagesN2 = (state, shared) => {
+  const { jsPsych, settings, wording, stimuli } = state;
+  const { showProgress } = shared;
+
+  const blockStop = genBlockStop(state, shared);
+  return {
+    // default values
+    css_classes: ["image"],
+    // actual timeline
+    timeline: [
+      {
+        type: jsPsychPreload,
+        images: () => {
+          return [
+            `${ASSET_PREFIX}${jsPsych.timelineVariable("asset1")}`,
+            `${ASSET_PREFIX}${jsPsych.timelineVariable("asset2")}`,
+          ];
+        },
+        on_start: showProgress,
+        show_progress_bar: false,
+        post_trial_gap: 200,
+      },
+      {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: "",
+        choices: [wording.keyAlt1, wording.keyAlt2],
+        prompt: () => {
+          const imgWidth =
+            settings.forceWidth.length == 0 ? "auto" : settings.forceWidth;
+          return `<p>${wording.question}</p>
+          <div class='image-choice'>
+            <div>
+              <img style="width:${imgWidth};" src="${ASSET_PREFIX}${jsPsych.timelineVariable(
+              "asset1"
+            )}">
+              <div><span class='strong'>[${wording.keyAlt1}]</span> ${
+              wording.labelAlt1
+            }</div>
+            </div>
+            <div>
+              <img style="width:${imgWidth};" src="${ASSET_PREFIX}${jsPsych.timelineVariable(
+              "asset2"
+            )}">
+              <div>${wording.labelAlt2} <span class='strong'>[${
+              wording.keyAlt2
+            }]</span></div>
+            </div>
+          </div>`;
+        },
+        data: {
+          answered: true,
+        },
+        on_finish: trialSubmitN2(state, shared),
       },
       blockStop,
     ],

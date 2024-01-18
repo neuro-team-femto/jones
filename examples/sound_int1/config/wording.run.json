@@ -1,0 +1,20 @@
+{
+  "title": "Le sourire des sons",
+  "collect": "Merci de renseigner les informations suivantes :",
+  "collectButton": "Valider",
+  "introduction": "Dans cette expérience, vous allez entendre des exemples de prononciations du son /a/, et nous vous demandons de juger s'ils expriment plutôt le sourire ou l'interrogation",
+  "pause": "Nous vous proposons une pause de quelques secondes",
+  "pauseOver": "La pause est terminée, vous pouvez reprendre l'expérience",
+  "resume": "Reprise de l'expérience",
+  "end": "Fin de l'expérience",
+  "thanks": "Merci pour votre participation",
+  "closed": "Expérience déjà effectuée",
+  "playSounds": "écoute extrait",
+  "space": "espace",
+  "next": "pour continuer",
+  "question": "Cet extrait exprime plutôt :",
+  "labelAlt1": "le sourire",
+  "labelAlt2": "l'interrogation",
+  "keyAlt1": "f",
+  "keyAlt2": "j"
+}

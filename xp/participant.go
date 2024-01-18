@@ -61,9 +61,15 @@ func truncatedInPlaceShuffle(input []string, max int) []string {
 }
 
 // if participant state is empty, generate the complete list of assets that compose a run
-// the length os this state is 2 (two assets to be compared for each trial) * TrialsPerBlock * BlocksPerXp
+// the length os this state is:
+// - for NInterval==2 -> (two assets to be compared for each trial) * TrialsPerBlock * BlocksPerXp
+// - for NInterval==1 -> TrialsPerBlock * BlocksPerXp
 func generateTodo(es ExperimentSettings, participantId string) (todos []string) {
-	length := 2 * es.TrialsPerBlock * es.BlocksPerXp
+	intervalFactor := 2
+	if es.NInterval == 1 {
+		intervalFactor = 1
+	}
+	length := intervalFactor * es.TrialsPerBlock * es.BlocksPerXp
 
 	allAssetsPath := "data/" + es.Id + "/assets"
 	assets := helpers.FindFilesUnder(allAssetsPath, "."+es.FileExtension)
@@ -71,7 +77,7 @@ func generateTodo(es ExperimentSettings, participantId string) (todos []string) 
 
 	if es.AddRepeatBlock {
 		// duplicate trials from last block
-		repeat := todos[length-(2*es.TrialsPerBlock):]
+		repeat := todos[length-(intervalFactor*es.TrialsPerBlock):]
 		todos = append(todos, repeat...)
 	}
 

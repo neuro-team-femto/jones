@@ -8,5 +8,4 @@ new-participants.txt
 .DS_Store
 
 # except
-!examples/sound_xp/results
-!examples/image_xp/results
+!examples/*/results

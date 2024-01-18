@@ -91,15 +91,15 @@ Let's review the meaning of each property:
     "playSounds": "listening to voices 1 & 2",
     "question": "Which pronunciation is the most smiling?",
     "next": "next",
-    "label1": "voice 1",
-    "label2": "voice 2",
     "space": "space",
-    "choice1": "f",
-    "choice2": "j"
+    "labelAlt1": "voice 1",
+    "labelAlt2": "voice 2",
+    "keyAlt1": "f",
+    "keyAlt2": "j"
 }
 ```
 
-**Caution**: the properties `"choice1` and `choice2` have to map actual keyboard letter keys, they are used as is to collect the participant decision.
+**Caution**: the properties `"keyAlt1` and `keyAlt2` have to map actual keyboard letter keys, they are used as is to collect the participant decision.
 
 An additional `wording.new.json` file has to be provided for the participant creation page (only available if `allowCreate` is true), please check `examples/sound_xp/config/wording.new.json`.
 
