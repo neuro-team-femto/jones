@@ -1,12 +1,13 @@
 {
-  "adminPassword": "unsecure",
-  "allowCreate": true,
-  "createPassword": "consent",
+  "kind": "image",
+  "nInterval": 2,
+  "fileExtension": "jpg",
   "trialsPerBlock": 3,
   "blocksPerXp": 2,
   "addRepeatBlock": false,
-  "kind": "image",
-  "fileExtension": "jpg",
-  "forceWidth": "400px",
-  "showProgress": true
+  "allowCreate": true,
+  "createPassword": "consent",
+  "adminPassword": "temporary_to_change",
+  "showProgress": true,
+  "forceWidth": "400px"
 }

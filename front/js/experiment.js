@@ -79,9 +79,12 @@ export default (props, ws) => {
         html: () => {
           const fieldsets = settings.collectInfo.map((i) => {
             let pattern = !!i.pattern ? `pattern="${i.pattern}"` : "";
+            let min = !!i.min ? `min="${i.min}"` : "";
+            let max = !!i.max ? `max="${i.max}"` : "";
+            let step = !!i.min && !!i.max ? `step="1"` : "";
             return ` <fieldset>
               <label>${i.label}</label>
-              <input id="${i.key}" name="${i.key}" type="${i.inputType}" ${pattern} required />
+              <input id="${i.key}" name="${i.key}" type="${i.inputType}" ${pattern} ${min} ${max} ${step} required />
             </fieldset>`;
           }).join('');
           return `<p>${fieldsets}</p>`;

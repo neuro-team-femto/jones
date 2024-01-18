@@ -12,22 +12,24 @@ type Field struct {
 	Label     string `json:"label"`
 	InputType string `json:"inputType"`
 	Pattern   string `json:"pattern"`
+	Min       string `json:"min"`
+	Max       string `json:"max"`
 }
 
 type ExperimentSettings struct {
-	Id             string `json:"id"`
-	AdminPassword  string `json:"adminPassword"`
-	AllowCreate    bool   `json:"allowCreate"`
-	CreatePassword string `json:"createPassword"`
-	TrialsPerBlock int    `json:"trialsPerBlock"`
-	BlocksPerXp    int    `json:"blocksPerXp"`
-	AddRepeatBlock bool   `json:"addRepeatBlock"`
-	// optional
-	Kind          string  `json:"kind"`
-	FileExtension string  `json:"fileExtension"`
-	ForceWidth    string  `json:"forceWidth"`
-	ShowProgress  bool    `json:"showProgress"`
-	CollectInfo   []Field `json:"collectInfo"`
+	Id             string  `json:"id"`
+	Kind           string  `json:"kind"`
+	NInterval      int     `json:"nInterval"`
+	FileExtension  string  `json:"fileExtension"`
+	TrialsPerBlock int     `json:"trialsPerBlock"`
+	BlocksPerXp    int     `json:"blocksPerXp"`
+	AddRepeatBlock bool    `json:"addRepeatBlock"`
+	AllowCreate    bool    `json:"allowCreate"`
+	CreatePassword string  `json:"createPassword"`
+	AdminPassword  string  `json:"adminPassword"`
+	ShowProgress   bool    `json:"showProgress"`
+	ForceWidth     string  `json:"forceWidth"`
+	CollectInfo    []Field `json:"collectInfo"`
 }
 
 // API
@@ -46,6 +48,7 @@ func IsExperimentValid(experimentId string) bool {
 	return helpers.PathExists("data/" + experimentId + "/config/settings.json")
 }
 
+// process with default values
 func GetExperimentSettings(experimentId string) (e ExperimentSettings, err error) {
 	settingsPath := "data/" + experimentId + "/config/settings.json"
 	file, err := os.ReadFile(settingsPath)
@@ -58,8 +61,11 @@ func GetExperimentSettings(experimentId string) (e ExperimentSettings, err error
 		return
 	}
 	e.Id = experimentId
-	if len(e.Kind) == 0 {
+	if e.Kind != "image" {
 		e.Kind = "sound"
+	}
+	if e.NInterval != 1 {
+		e.NInterval = 2
 	}
 	if len(e.FileExtension) == 0 {
 		if e.Kind == "sound" {

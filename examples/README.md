@@ -24,17 +24,17 @@ If you happen want an experiment to be available in different languages, we curr
 
 ```json
 {
-  "adminPassword": "to_change",
-  "allowCreate": true,
-  "createPassword": "consent",
+  "kind": "image",
+  "nInterval": 2,
+  "fileExtension": "jpg",
   "trialsPerBlock": 3,
   "blocksPerXp": 6,
   "addRepeatBlock": true,
-  "assetsPerParticipant": true,
-  "kind": "image",
-  "fileExtension": "jpg",
-  "forceWidth": "350px",
+  "allowCreate": true,
+  "createPassword": "consent",
+  "adminPassword": "temporary_to_change",
   "showProgress": true,
+  "forceWidth": "350px",
   "collectInfo": [
     {
       "key": "age",
@@ -53,23 +53,26 @@ If you happen want an experiment to be available in different languages, we curr
 
 Let's review the meaning of each property:
 
-* `adminPassword`: if you want to access CSV results go to `https://example.com/xp/experiment_3/results` and enter admin as the login and the value of `adminPassword` as the password
+* `kind`: either `sound` or `image` (fallback to `sound` if not set)
+* `nInterval`: number of sound(s) or image(s) to be presented, currently the only valid values are `1` or `2` (fallback to `2` if not set)
+* `fileExtension`: if you want to set the assets extension (fallback to `wav` for sounds or `png` for images if not set). Supported values are: `wav`, `png` and `jpg`
+* `trialsPerBlock`: trials are grouped by blocks (with a pause between blocks), define how many trials make a block
+* `blocksPerXp`: how many blocks are in the experiment
+* `addRepeatBlock`: repeat last block (for consistency measurement). In the example above, the experiment is made of 7 (6 + 1) blocks (fallback to `false` if not set)
 * `allowCreate`:
     * if `false`, only declared participants are allowed to access this experiment. Check step 6 to see how to declare them
     * if `true`, anyone going to `https://example.com/xp/experiment_3/new` will be able to access the experiment, if they know the `createPassword` 
+    * fallback to `false` if not specified
 * `createPassword`: password that protects the creation of participants
-* `trialsPerBlock`: trials are grouped by blocks (with a pause between blocks), define how many trials make a block
-* `blocksPerXp`: how many blocks are in the experiment
-* `addRepeatBlock`: repeat last block (for consistency measurement). In the example above, the experiment is made of 7 (6 + 1) blocks.
-* `kind` (optional): either `sound` (default) or `image`
-* `fileExtension` (optional): if you want to set the assets extension (by default `wav` for sounds, `png` for images). Supported values are: `wav`, `png` and `jpg`
+* `adminPassword`: if you want to access CSV results go to `https://example.com/xp/experiment_3/results` and enter admin as the login and the value of `adminPassword` as the password
+* `showProgress`: show the progress (in the form `trials done/total count`) at the right bottom corner (fallback to `false` if not specified)
 * `forceWidth` (optional and used only for `image` kind): force the width of displayed images using the provided value as a CSS property. If not set, images are displayed in their original size
-* `showProgress` (optional and false by default): show the progress (in the form `trials done/total count`) at the right bottom corner
-* `collectInfo` (optional, no HTML form if empty): add info definition to be collected before the trials in a HTML form, with the following subproperties:
+* `collectInfo` (optional, no HTML form if emptydn): add info definition to be collected before the trials in a HTML form, with the following subproperties:
   - `key` the column header corresponding to that piece of data in CSV results
   - `label` the displayed label in the HTML form
-  - `kind` the HTML input type attribute
-  - `pattern` the HTML input pattern attribute
+  - `inputType` the HTML input type attribute as defined here: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types
+  - `pattern` (optional) the HTML input pattern attribute as defined here: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern
+  - `min` and `max` (optional) used as integer limits for a `range` `inputType` (with a range step of 1) 
 
 4. The `wording.run.json` file configures messages displayed on screens and needs the following properties:
 
