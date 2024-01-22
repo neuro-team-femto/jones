@@ -46,7 +46,7 @@ body, #jspsych-root {
 #jspsych-survey-html-form fieldset {
     display: flex;
     box-sizing: border-box;
-    width: 220px;
+    width: 320px;
     margin: 0 auto;
     border: 0;
 }
@@ -69,6 +69,7 @@ body, #jspsych-root {
 
 .image-choice {
     display: flex;
+    justify-content: center;
 }
 
 .image-choice > div:first-child {
@@ -77,4 +78,18 @@ body, #jspsych-root {
 
 .gap {
     width: 5%;
+}
+
+form fieldset {
+    justify-content: flex-start;
+    width: 100%;
+}
+
+form fieldset label {
+    width: 40%;
+}
+
+form fieldset input {
+    width: 58%;
+    margin-left: 2%;
 }

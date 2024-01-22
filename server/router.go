@@ -71,9 +71,10 @@ func GetRouter() *mux.Router {
 	// results router with authentication
 	resultsRouter := router.PathPrefix(webPrefix).Subrouter()
 	resultsRouter.Use(resultsAuthMiddleware)
+	filteredFS := dotFileHidingFileSystem{http.Dir("./data/")}
 	resultsRouter.
 		PathPrefix("/xp/{experimentId:[a-zA-Z0-9-_]+}/results").
-		Handler(http.StripPrefix(webPrefix+"/xp", http.FileServer(http.Dir("./data/"))))
+		Handler(http.StripPrefix(webPrefix+"/xp", http.FileServer(filteredFS)))
 
 	return router
 }

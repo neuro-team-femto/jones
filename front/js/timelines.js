@@ -55,7 +55,7 @@ const trialSubmitN1 = (state, shared) => {
     ws.send(
       JSON.stringify({
         kind: "trial",
-        payload: JSON.stringify({ result1, result2 }),
+        payload: JSON.stringify(result),
       })
     );
   }
@@ -87,11 +87,17 @@ const trialSubmitN2 = (state, shared) => {
     position.trial++;
     position.block = inBlock(position.trial, settings.trialsPerBlock);
     updateProgress();
-  
+
     ws.send(
       JSON.stringify({
         kind: "trial",
-        payload: JSON.stringify({ result1, result2 }),
+        payload: JSON.stringify(result1),
+      })
+    );
+    ws.send(
+      JSON.stringify({
+        kind: "trial",
+        payload: JSON.stringify(result2),
       })
     );
   }
@@ -248,6 +254,8 @@ export const imagesN1 = (state, shared) => {
   const { jsPsych, settings, wording, stimuli } = state;
   const { showProgress } = shared;
 
+  console.log(settings);
+
   const blockStop = genBlockStop(state, shared);
   return {
     // default values
@@ -272,19 +280,18 @@ export const imagesN1 = (state, shared) => {
         prompt: () => {
           const imgWidth =
             settings.forceWidth.length == 0 ? "auto" : settings.forceWidth;
-          return `<p>${wording.question}</p>
-          <div class='image-choice'>
+          return `<div>
             <img style="width:${imgWidth};" src="${ASSET_PREFIX}${jsPsych.timelineVariable(
-          "asset")}">
+            "asset")}">
+          </div>
+          <p>${wording.question}</p>
+          <div class='image-choice'>
             <div>
-              <div><span class='strong'>[${wording.keyAlt1}]</span> ${
-              wording.labelAlt1
-            }</div>
+              <span class='strong'>[${wording.keyAlt1}]</span> ${wording.labelAlt1}
             </div>
             <div>
-              <div>${wording.labelAlt2} <span class='strong'>[${
-              wording.keyAlt2
-            }]</span></div>
+              ${wording.labelAlt2} <span class='strong'>[${
+              wording.keyAlt2}]</span>
             </div>
           </div>`;
         },

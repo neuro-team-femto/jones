@@ -20,6 +20,13 @@ For convenience you may in fact declare several `participants` files: any text f
 
 If you happen want an experiment to be available in different languages, we currently recommend to create separate experiment folders (for instance `experiment_3_fr` and `experiment_3_en`) that will contain their own configuration and wording files.
 
+Instead of creating folders, you may copy/paste one of the `examples/*` folder (with its subfolders `config`, `assets`, `results`) and change their contents. The provided examples are :
+* `image_int1`: 1-interval image-based experiment
+* `image_int2`: 2-intervals image-based experiment
+* `image_int2_varying_width`: 2-intervals image-based experiment with varying width image files that are force to a `400px` width display
+* `sound_int1`: 1-interval sound-based experiment
+* `sound_int2`: 2-intervals sound-based experiment
+
 3. The `settings.json` file configures the experiment and needs the following properties:
 
 ```json
@@ -89,9 +96,9 @@ Let's review the meaning of each property:
     "thanks": "Thanks for your participation",
     "closed": "Experiment already done",
     "playSounds": "listening to voices 1 & 2",
-    "question": "Which pronunciation is the most smiling?",
     "next": "next",
     "space": "space",
+    "question": "Which pronunciation is the most smiling?",
     "labelAlt1": "voice 1",
     "labelAlt2": "voice 2",
     "keyAlt1": "f",
@@ -99,11 +106,13 @@ Let's review the meaning of each property:
 }
 ```
 
-**Caution**: the properties `"keyAlt1` and `keyAlt2` have to map actual keyboard letter keys, they are used as is to collect the participant decision.
+**Caution**:
+* the properties `"keyAlt1` and `keyAlt2` have to map actual keyboard letter keys, they are used as is to collect the participant decision.
+* the properties `"labelAlt1` and `labelAlt2` are used in the CSV result file for 1-inverval experiments (`response` value), that's why currently you should not put a comma in these values or they will break CSV formatting
 
-An additional `wording.new.json` file has to be provided for the participant creation page (only available if `allowCreate` is true), please check `examples/sound_xp/config/wording.new.json`.
+5. An additional `wording.new.json` file has to be provided for the participant creation page (only available if `allowCreate` is true), please check `examples/sound_int2/config/wording.new.json`.
 
-5. Put assets to be tested in `experiment_3/assets`. For each *asset* file (sound or image) there MUST be a *definition* file respecting the following conditions:
+6. Put assets to be tested in `experiment_3/assets`. For each *asset* file (sound or image) there MUST be a *definition* file respecting the following conditions:
 * for a given sound or image, the asset and definition files have an identical name but a different extension. For instance the asset `gomot_a.0001.eq.wav` is paired with its definition `gomot_a.0001.eq.txt` (definition extension are always `txt`)
 * definition files are CSV formatted, with comma-separated headers on their first line
 * in the same experiment, all definition files share the same headers (implying that all `experiment_3/assets/*.txt` start with the same first line, defining headers)
@@ -132,7 +141,7 @@ subj,trial,block,sex,age,date,stim,stim_order,param_index,filter_freq,filter_gai
 
 In this example the 3 lines refer to the same sound and the same trial result, the unfolded/multiline notation being intended to help with further analysis.
 
-6. Here is an example `participants` file, defining 4 participant IDs:
+7. Here is an example `participants` file, defining 4 participant IDs:
 ```text
 b0c410eacc023237ca8d9cfea109ab70
 d465f071d45d8a216b42d6411e865bcf
@@ -142,10 +151,10 @@ f003a58ffc73c3bd44f2c44662c98def
 
 With this `participants` file, and if the webapp is hosted at `https://example.com/` you may share the following links to participants (don't forget the `xp` path prefix)
 
-https://example.com/xp/experiment_3/b0c410eacc023237ca8d9cfea109ab70
-https://example.com/xp/experiment_3/d465f071d45d8a216b42d6411e865bcf
-https://example.com/xp/experiment_3/f003a58ffc73c3bd44f2c44662c98def
-https://example.com/xp/experiment_3/1de290f8d4e545f768851e4039770709
+https://example.com/xp/experiment_3/run/b0c410eacc023237ca8d9cfea109ab70
+https://example.com/xp/experiment_3/run/d465f071d45d8a216b42d6411e865bcf
+https://example.com/xp/experiment_3/run/f003a58ffc73c3bd44f2c44662c98def
+https://example.com/xp/experiment_3/run/1de290f8d4e545f768851e4039770709
 
 ## Reset
 

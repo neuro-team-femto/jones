@@ -67,12 +67,8 @@ func newRecord(p Participant, r Result, index int, values []string) []string {
 
 // API
 
-func WriteToCSV(es ExperimentSettings, p Participant, r1, r2 Result) (err error) {
-	def1, err := getAssetDefAllValues(es, r1.Stimulus)
-	if err != nil {
-		return
-	}
-	def2, err := getAssetDefAllValues(es, r2.Stimulus)
+func WriteToCSV(es ExperimentSettings, p Participant, r Result) (err error) {
+	def, err := getAssetDefAllValues(es, r.Stimulus)
 	if err != nil {
 		return
 	}
@@ -80,18 +76,15 @@ func WriteToCSV(es ExperimentSettings, p Participant, r1, r2 Result) (err error)
 	var records [][]string
 	path := "data/" + p.ExperimentId + "/results/" + p.Id + ".csv"
 	if !helpers.PathExists(path) {
-		headers, e := genRecordHeaders(es, p, r1)
+		headers, e := genRecordHeaders(es, p, r)
 		if e != nil {
 			return e
 		}
 		records = append(records, headers)
 	}
 
-	for index, values := range def1 {
-		records = append(records, newRecord(p, r1, index, values))
-	}
-	for index, values := range def2 {
-		records = append(records, newRecord(p, r2, index, values))
+	for index, values := range def {
+		records = append(records, newRecord(p, r, index, values))
 	}
 
 	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)

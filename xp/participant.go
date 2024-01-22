@@ -153,10 +153,10 @@ func (p *Participant) UpdateInfo(info StrMap) (err error) {
 	return p.saveState()
 }
 
-func (p *Participant) UpdateTodo(stimuli1, stimuli2 string) (err error) {
+func (p *Participant) UpdateTodo(stimuli string) (err error) {
 	var newTodo []string
 	for _, t := range p.Todo {
-		if t != stimuli1 && t != stimuli2 {
+		if t != stimuli {
 			newTodo = append(newTodo, t)
 		}
 	}

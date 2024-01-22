@@ -26,11 +26,6 @@ type joinData struct {
 	ParticipantId string `json:"participantId"`
 }
 
-type trialData struct {
-	Result1 xp.Result `json:"result1"`
-	Result2 xp.Result `json:"result2"`
-}
-
 // messages out
 type messageOut struct {
 	Kind    string  `json:"kind"`
@@ -73,25 +68,25 @@ func (pc participantConn) loop() {
 		}
 
 		if msg.Kind == "trial" {
-			trial := trialData{}
-			err = json.Unmarshal([]byte(msg.Payload), &trial)
+			r := xp.Result{}
+			err = json.Unmarshal([]byte(msg.Payload), &r)
 			if err != nil {
 				sendAndLogError(pc.conn, err, "error-trial-read")
 				return
 			}
 
-			if !trial.Result1.IsValid() || !trial.Result2.IsValid() {
+			if !r.IsValid() {
 				sendAndLogError(pc.conn, err, "error-trial-invalid")
 				return
 			}
 
-			err = xp.WriteToCSV(pc.es, pc.p, trial.Result1, trial.Result2)
+			err = xp.WriteToCSV(pc.es, pc.p, r)
 			if err != nil {
 				sendAndLogError(pc.conn, err, "error-trial-write")
 				return
 			}
 
-			err = pc.p.UpdateTodo(trial.Result1.Stimulus, trial.Result2.Stimulus)
+			err = pc.p.UpdateTodo(r.Stimulus)
 			if err != nil {
 				sendAndLogError(pc.conn, err, "error-todo-update")
 				return

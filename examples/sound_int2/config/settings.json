@@ -21,8 +21,8 @@
       "inputType": "text"
     },
     {
-      "key": "scale",
-      "label": "scale",
+      "key": "shape",
+      "label": "forme actuelle",
       "inputType": "range",
       "min": "1",
       "max": "5"

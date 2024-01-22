@@ -27,6 +27,7 @@ const pairs = (arr) =>
 
 // build and run experiment
 export default (props, ws) => {
+  console.log(props)
   // init
   const { settings, wording, participant } = props;
   const jsPsych = initJsPsych({
@@ -40,19 +41,24 @@ export default (props, ws) => {
     : settings.blocksPerXp;
 
   const totalLength = blocks * settings.trialsPerBlock;
-  const remainingLength = participant.todo.length / 2; // 2 choices per trial
+  let stimuli;
+  let remainingLength = 0;
+  if (!!participant.todo) {
+    if (settings.nInterval === 1) {
+      remainingLength = participant.todo.length;
+      stimuli = participant.todo.map((t) => ({ asset: t}));
+    } else {
+      remainingLength = participant.todo.length / 2;
+      stimuli = pairs(participant.todo, 2);
+    }
+  }
   const previouslyDoneLength = totalLength - remainingLength; // not 0 if user reconnects (page refresh for instance)
   const position = {
     trial: previouslyDoneLength,
     block: shared.inBlock(previouslyDoneLength, settings.trialsPerBlock),
   };
   const timeline = [];
-  let stimuli;
-  if (settings.nInterval === 1) {
-    stimuli = participant.todo.map((t) => ({ asset: t}));
-  } else {
-    stimuli = pairs(participant.todo, 2);
-  }
+
 
   // shared state
   state.ws = ws;

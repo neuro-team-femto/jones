@@ -8,6 +8,5 @@
   "allowCreate": true,
   "createPassword": "consent",
   "adminPassword": "temporary_to_change",
-  "showProgress": true,
-  "forceWidth": "400px"
+  "showProgress": true
 }
