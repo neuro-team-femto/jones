@@ -31,7 +31,7 @@ APP_ENV=BUILD_FRONT ./revcor
 ```
 revcor     -> jspsych WebSocket back-end to manage experiments + HTTP server for front-end assets 
 data/      -> contains live experiments data (configuration and results)
-examples/  -> contains example experiment configurations that you may copy/paste then edit
+examples/  -> (optional) contains example experiment configurations that you may copy/paste then edit
 public/    -> js/css assets served by HTTP server
 ```
 
