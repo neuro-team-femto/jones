@@ -3,42 +3,31 @@ package server
 import (
 	"log"
 	"net/http"
-	"os"
-	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+	"github.com/neuro-team-femto/revcor/config"
 	"github.com/neuro-team-femto/revcor/helpers"
 )
 
 var (
-	allowedOrigins = []string{}
-	webPrefix      string
-	upgrader       = websocket.Upgrader{
+	webPrefix string
+	upgrader  = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			origin := r.Header.Get("Origin")
 			log.Printf("[server] ws upgrade from origin: %v\n", origin)
-			return helpers.Contains(allowedOrigins, origin)
+			return helpers.Contains(config.AllowedOrigins, origin)
 		},
 	}
 )
 
 func init() {
-	// environment variables use
-	envOrigins := os.Getenv("APP_ORIGINS")
-	if len(envOrigins) > 0 {
-		allowedOrigins = append(allowedOrigins, strings.Split(envOrigins, ",")...)
-	}
-	if os.Getenv("APP_ENV") == "DEV" || len(envOrigins) == 0 {
-		allowedOrigins = append(allowedOrigins, "http://localhost:8100", "https://localhost:8100")
-	}
-
-	// web prefix, for instance "/path" if DuckSoup is reachable at https://host/path
-	webPrefix = helpers.Getenv("APP_WEB_PREFIX", "")
-
 	// log
-	log.Printf("[server] allowed ws origins: %v\n", allowedOrigins)
-	log.Printf("[server] APP_WEB_PREFIX: %v\n", webPrefix)
+	log.Printf("[server] allowed ws origins: %v\n", config.AllowedOrigins)
+	if len(config.WebPrefix) > 0 {
+		// web prefix, for instance "/path" if DuckSoup is reachable at https://host/path
+		log.Printf("[server] APP_WEB_PREFIX: %v\n", config.WebPrefix)
+	}
 }
 
 func notFound(w http.ResponseWriter, r *http.Request) {

@@ -23,7 +23,10 @@ Check [Build options](#build-options) to build for different platforms.
 3. Build front-end assets (to the `public` folder) thanks to the `revcor` binary:
 
 ```sh
-APP_ENV=BUILD_FRONT ./revcor
+# with an environment variable
+APP_MODE=BUILD_FRONT ./revcor
+# with a command line argument
+./revcor -APP_MODE BUILD_FRONT
 ```
 
 4. Transfer to server the `revcor` binary, and the `data`, `examples` and `public` folders:
@@ -52,13 +55,21 @@ Check other available settings in the [Environment variables](#environment-varia
 * `APP_PORT=9000` (defaults to 8100) to set port listen by `revcor` server
 * `APP_ORIGINS=https://example.com` to declare a comma separated list of allowed origins for WebSocket connections (`http://localhost:8100` and `https://localhost:8100` are allowed by default if `APP_ORIGINS` is not set)
 * `APP_WEB_PREFIX=/path` (empty by default) needed if, depending on your server configuration, `revcor` is served under a given path, for instance `https://example.com/path`
-* `APP_ENV=DEV` to enable development mode (watch JS files to trigger builds, enhanced logs and allow `http://localhost:8100` and `https://localhost:8100` origins)
-* `APP_ENV=BUILD_FRONT` builds front-end assets but do not start server
+* `APP_MODE=DEV` to enable development mode (watch JS files to trigger builds, enhanced logs and allow `http://localhost:8100` and `https://localhost:8100` origins)
+* `APP_MODE=BUILD_FRONT` builds front-end assets but do not start server
+
+## Command line arguments
+
+It's also possible to run the projet with the `APP_MODE` command line argument, in that case it will have priority over the corresponding environment variable if both are defined, for instance:
+
+```sh
+go run main.go -APP_MODE BUILD_FRONT
+```
 
 ## Run in development
 
 ```sh
-APP_ENV=DEV ./revcor
+APP_MODE=DEV ./revcor
 ```
 
 Go to http://localhost:8100/xp/example/new

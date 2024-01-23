@@ -2,28 +2,22 @@ package front
 
 import (
 	"log"
-	"os"
 
 	"github.com/evanw/esbuild/pkg/api"
+	"github.com/neuro-team-femto/revcor/config"
 	_ "github.com/neuro-team-femto/revcor/helpers"
 )
 
-var (
-	developmentMode bool = false
-	cmdBuildMode    bool = false
-)
-
-func init() {
-	if os.Getenv("APP_ENV") == "DEV" {
-		developmentMode = true
-	}
-	if os.Getenv("APP_ENV") == "BUILD_FRONT" {
-		cmdBuildMode = true
-	}
-}
-
 // API
 func Build() {
+	// mode configuration, false by default
+	var developmentMode, cmdBuildMode bool
+	if config.Mode == "DEV" {
+		developmentMode = true
+	}
+	if config.Mode == "BUILD_FRONT" {
+		cmdBuildMode = true
+	}
 	if !developmentMode && !cmdBuildMode {
 		return
 	}
@@ -64,12 +58,12 @@ func Build() {
 					}
 				} else {
 					if len(result.Warnings) > 0 {
-						log.Printf("[info] js build success with %d warnings\n", len(result.Warnings))
+						log.Printf("[front] js build success with %d warnings\n", len(result.Warnings))
 						for _, msg := range result.Warnings {
 							log.Printf("[warning] js build: %v\n", msg.Text)
 						}
 					} else {
-						log.Println("[info] js build success")
+						log.Println("[front] js build success")
 					}
 				}
 				return api.OnEndResult{}, nil
@@ -80,6 +74,6 @@ func Build() {
 	build := api.Build(buildOptions)
 
 	if len(build.Errors) > 0 {
-		log.Printf("[error] js build: %v\n", build.Errors[0].Text)
+		log.Printf("[front][error] js build: %v\n", build.Errors[0].Text)
 	}
 }
