@@ -11,11 +11,13 @@
   "end": "Fin de l'expérience",
   "thanks": "Merci pour votre participation",
   "closed": "Expérience déjà effectuée par ce·tte participant·e",
-  "space": "espace",
   "next": "pour continuer",
+  "space": "espace",
   "question": "Cette image exprime plutôt",
+  "keyAlt1": "f",
+  "keyAlt2": "j",
   "labelAlt1": "le sourire",
   "labelAlt2": "l'étonnement",
-  "keyAlt1": "f",
-  "keyAlt2": "j"
+  "codeAlt1": "smile",
+  "codeAlt2": "astonishment"
 }

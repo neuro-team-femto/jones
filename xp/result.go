@@ -57,7 +57,6 @@ func newRecord(p Participant, r Result, index int, values []string) []string {
 		r.Order,
 		r.Response,
 		r.Rt,
-		fmt.Sprint(index),
 	}
 	record = append(record, p.getInfoValues()...)
 	record = append(record, fmt.Sprint(index))

@@ -12,8 +12,10 @@
   "next": "pour continuer",
   "space": "espace",
   "question": "Quelle expression est la plus souriante ?",
+  "keyAlt1": "f",
+  "keyAlt2": "j",
   "labelAlt1": "gauche",
   "labelAlt2": "droite",
-  "keyAlt1": "f",
-  "keyAlt2": "j"
+  "codeAlt1": "left",
+  "codeAlt2": "right"
 }

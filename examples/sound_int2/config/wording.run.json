@@ -10,11 +10,13 @@
   "thanks": "Merci pour votre participation",
   "closed": "Expérience déjà effectuée par ce·tte participant·e",
   "playSounds": "écoute voix 1 & 2",
-  "question": "Quelle prononciation est la plus souriante ?",
   "next": "pour continuer",
   "space": "espace",
-  "labelAlt1": "voix 1",
-  "labelAlt2": "voix 2",
+  "question": "Quelle prononciation est la plus souriante ?",
   "keyAlt1": "f",
-  "keyAlt2": "j"
+  "keyAlt2": "j",
+  "labelAlt1": "voice 1",
+  "labelAlt2": "voice 2",
+  "codeAlt1": "voice1",
+  "codeAlt2": "voice2"
 }

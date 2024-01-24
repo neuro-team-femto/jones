@@ -44,7 +44,7 @@ const trialSubmitN1 = (state, shared) => {
       block: position.block.toString(),
       stimulus: jsPsych.timelineVariable("asset"),
       order: "0",
-      response: data.response === wording.keyAlt1 ? wording.labelAlt1 : wording.labelAlt2,
+      response: data.response === wording.keyAlt1 ? wording.codeAlt1 : wording.codeAlt2,
       rt: data.rt.toString(),
       date: start,
     };

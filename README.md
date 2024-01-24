@@ -8,13 +8,27 @@ This project provides with a back-end for a [jspsych](https://www.jspsych.org/) 
 * deployment made easy (2): no database needed (all configuration and state being saved to text files)
 * deployment made easy (3): the `revcor` binary comes with a HTTP server for static files (JS, CSS)
 
+## Run in development
+
+Clone the repository then:
+
+```sh
+# with an environment variable:
+APP_MODE=DEV go run main.go
+# or with a command line argument:
+go run main.go -APP_MODE DEV
+```
+
+Then go to http://localhost:8100/xp/example/new
+
 ## Build and deploy
 
-1. Clone the current project
+1. Clone the repository
 
 2. Build the `revcor` binary:
 
 ```sh
+# creates the 'revcor' binary
 go build
 ```
 
@@ -23,9 +37,9 @@ Check [Build options](#build-options) to build for different platforms.
 3. Build front-end assets (to the `public` folder) thanks to the `revcor` binary:
 
 ```sh
-# with an environment variable
+# with an environment variable:
 APP_MODE=BUILD_FRONT ./revcor
-# with a command line argument
+# or with a command line argument:
 ./revcor -APP_MODE BUILD_FRONT
 ```
 
@@ -35,7 +49,7 @@ APP_MODE=BUILD_FRONT ./revcor
 revcor     -> jspsych WebSocket back-end to manage experiments + HTTP server for front-end assets 
 data/      -> contains live experiments data (configuration and results)
 examples/  -> (optional) contains example experiment configurations that you may copy/paste then edit
-public/    -> js/css assets served by HTTP server
+public/    -> js/css assets served by HTTP server including those created with APP_MODE=BUILD_FRONT
 ```
 
 Other files and folders in this project are only needed for the build (steps 2 and 3) and don't need to be transferred to the server.
@@ -65,14 +79,6 @@ It's also possible to run the projet with the `APP_MODE` command line argument, 
 ```sh
 go run main.go -APP_MODE BUILD_FRONT
 ```
-
-## Run in development
-
-```sh
-APP_MODE=DEV ./revcor
-```
-
-Go to http://localhost:8100/xp/example/new
 
 ## Create a new experiment
 

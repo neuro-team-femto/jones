@@ -99,16 +99,18 @@ Let's review the meaning of each property:
     "next": "next",
     "space": "space",
     "question": "Which pronunciation is the most smiling?",
+    "keyAlt1": "f",
+    "keyAlt2": "j",
     "labelAlt1": "voice 1",
     "labelAlt2": "voice 2",
-    "keyAlt1": "f",
-    "keyAlt2": "j"
+    "codeAlt1": "voice1",
+    "codeAlt2": "voice2"
 }
 ```
 
 **Caution**:
 * the properties `"keyAlt1` and `keyAlt2` have to map actual keyboard letter keys, they are used as is to collect the participant decision.
-* the properties `"labelAlt1` and `labelAlt2` are used in the CSV result file for 1-inverval experiments (`response` value), that's why currently you should not put a comma in these values or they will break CSV formatting
+* the properties `"codeAlt1` and `codeAlt2` are used in the CSV result file for 1-inverval experiments (`response` value), that's why you should not put a comma in these values or they will break CSV formatting
 
 5. An additional `wording.new.json` file has to be provided for the participant creation page (only available if `allowCreate` is true), please check `examples/sound_int2/config/wording.new.json`.
 
