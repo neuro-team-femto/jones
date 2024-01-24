@@ -1,0 +1,12 @@
+{
+  "kind": "image",
+  "nInterval": 1,
+  "fileExtension": "jpg",
+  "trialsPerBlock": 3,
+  "blocksPerXp": 2,
+  "addRepeatBlock": false,
+  "allowCreate": true,
+  "createPassword": "consent",
+  "adminPassword": "temporary_to_change",
+  "showProgress": true
+}

@@ -1,0 +1,23 @@
+{
+  "title": "Le sourire des images",
+  "collect": "Merci de renseigner les informations suivantes :",
+  "collectAge": "âge",
+  "collectSex": "sexe",
+  "collectButton": "Valider",
+  "introduction": "Dans cette expérience, vous allez qualifier des images : nous vous demandons de juger si elles expriment plutôt le sourire ou l'étonnement.",
+  "pause": "Nous vous proposons une pause de quelques secondes",
+  "pauseOver": "La pause est terminée, vous pouvez reprendre l'expérience",
+  "resume": "Reprise de l'expérience",
+  "end": "Fin de l'expérience",
+  "thanks": "Merci pour votre participation",
+  "closed": "Expérience déjà effectuée par ce·tte participant·e",
+  "next": "pour continuer",
+  "space": "espace",
+  "question": "Cette image exprime plutôt",
+  "keyAlt1": "f",
+  "keyAlt2": "j",
+  "labelAlt1": "le sourire",
+  "labelAlt2": "l'étonnement",
+  "codeAlt1": "smile",
+  "codeAlt2": "astonishment"
+}

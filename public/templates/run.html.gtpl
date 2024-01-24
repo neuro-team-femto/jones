@@ -13,8 +13,10 @@
     <link rel="stylesheet" href="{{.webPrefix}}/styles/main.css">
   </head>
   <body>
+    <div id="jspsych-root"></div>
+    <div id="progress" style="display: none;"></div>
     <script>
-      var state = { experimentId: {{.experimentId}}, participantId: {{.participantId}}};
+      var stateIds = { experimentId: {{.experimentId}}, participantId: {{.participantId}}};
     </script>
   </body>
 </html>

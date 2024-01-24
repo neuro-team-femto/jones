@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/creamlab/revcor/xp"
 	"github.com/gorilla/websocket"
+	"github.com/neuro-team-femto/revcor/xp"
 )
 
 type participantConn struct {
 	conn *websocket.Conn
 	p    xp.Participant
+	es   xp.ExperimentSettings
 }
 
 // messages in
@@ -23,16 +24,6 @@ type messageIn struct {
 type joinData struct {
 	ExperimentId  string `json:"experimentId"`
 	ParticipantId string `json:"participantId"`
-}
-
-type infoData struct {
-	Age string `json:"age"`
-	Sex string `json:"sex"`
-}
-
-type trialData struct {
-	Result1 xp.Result `json:"result1"`
-	Result2 xp.Result `json:"result2"`
 }
 
 // messages out
@@ -77,25 +68,25 @@ func (pc participantConn) loop() {
 		}
 
 		if msg.Kind == "trial" {
-			trial := trialData{}
-			err = json.Unmarshal([]byte(msg.Payload), &trial)
+			r := xp.Result{}
+			err = json.Unmarshal([]byte(msg.Payload), &r)
 			if err != nil {
 				sendAndLogError(pc.conn, err, "error-trial-read")
 				return
 			}
 
-			if !trial.Result1.IsValid() || !trial.Result2.IsValid() {
+			if !r.IsValid() {
 				sendAndLogError(pc.conn, err, "error-trial-invalid")
 				return
 			}
 
-			err = xp.WriteToCSV(pc.p, trial.Result1, trial.Result2)
+			err = xp.WriteToCSV(pc.es, pc.p, r)
 			if err != nil {
 				sendAndLogError(pc.conn, err, "error-trial-write")
 				return
 			}
 
-			err = pc.p.UpdateTodo(trial.Result1.Stimulus, trial.Result2.Stimulus)
+			err = pc.p.UpdateTodo(r.Stimulus)
 			if err != nil {
 				sendAndLogError(pc.conn, err, "error-todo-update")
 				return
@@ -106,10 +97,10 @@ func (pc participantConn) loop() {
 
 // API
 
-func runWs(conn *websocket.Conn) {
+func wsHandler(conn *websocket.Conn) {
 	defer conn.Close()
 
-	// there is an implied protocol to be followed:
+	// there is an ordered protocol to follow:
 	// 1. first received message *must* be a "join"
 	joinMsg := messageIn{}
 	err := conn.ReadJSON(&joinMsg)
@@ -135,17 +126,19 @@ func runWs(conn *websocket.Conn) {
 		return
 	}
 
-	p, err := xp.LoadParticipant(es, join.ParticipantId)
+	// create or get from saved state
+	p, err := xp.InitParticipant(es, join.ParticipantId)
 	if err != nil {
 		return
 	}
 
 	// caution: es/p are structs that will be automatically deserialized as JS objects client side
-	// ew is a string that remains to be parsed client-side (done this way not to declare wordings.json structure)
+	// ew is a string that remains to be parsed client-side
+	// done this way on purpose, not to type/declare wording json evolving structures
 	initPayload := outData{
 		"settings":    es,
-		"wording":     ew,
 		"participant": p,
+		"wording":     ew,
 	}
 
 	// 2. first sent message is an "init" containing the data needed to initialized the client state
@@ -154,7 +147,7 @@ func runWs(conn *websocket.Conn) {
 	}
 
 	// 3. if participant info is empty, the next received message *must* be a "info"
-	if p.Age == "" || p.Sex == "" {
+	if es.CollectsInfo() && !p.InfoCollected {
 		infoMsg := messageIn{}
 		err := conn.ReadJSON(&infoMsg)
 		if err != nil || infoMsg.Kind != "info" {
@@ -162,14 +155,14 @@ func runWs(conn *websocket.Conn) {
 			return
 		}
 
-		info := infoData{}
+		var info xp.StrMap
 		err = json.Unmarshal([]byte(infoMsg.Payload), &info)
 		if err != nil {
 			sendAndLogError(conn, err, "error-info-invalid")
 			return
 		}
 
-		err = p.UpdateInfo(info.Age, info.Sex)
+		err = p.UpdateInfo(info)
 		if err != nil {
 			sendAndLogError(conn, err, "error-info-save")
 			return
@@ -177,6 +170,6 @@ func runWs(conn *websocket.Conn) {
 	}
 
 	// 4. client/server initialization is over, now we loop on "result" messages
-	pc := participantConn{conn, p}
+	pc := participantConn{conn, p, es}
 	pc.loop()
 }

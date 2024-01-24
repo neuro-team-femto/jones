@@ -7,13 +7,13 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/creamlab/revcor/helpers"
-	"github.com/creamlab/revcor/xp"
 	"github.com/gorilla/mux"
+	"github.com/neuro-team-femto/revcor/helpers"
+	"github.com/neuro-team-femto/revcor/xp"
 )
 
 // handle incoming websockets
-func websocketHandler(w http.ResponseWriter, r *http.Request) {
+func upgradeHandler(w http.ResponseWriter, r *http.Request) {
 	// upgrade HTTP request to Websocket
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -21,12 +21,12 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	runWs(conn)
+	wsHandler(conn)
 }
 
-func soundHandler(w http.ResponseWriter, r *http.Request) {
+func assetHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	path := "data/" + vars["experimentId"] + "/sounds/" + vars["file"]
+	path := "data/" + vars["experimentId"] + "/assets/" + vars["file"]
 	http.ServeFile(w, r, path)
 }
 

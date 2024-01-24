@@ -1,0 +1,9 @@
+{
+  "instructions": "Avant de commencer l'expérience, veuillez choisir un identifiant et renseigner le code d'accès qui vous a été communiqué :",
+  "idLabel": "Identifiant",
+  "passwordLabel": "Code d'accès",
+  "submitLabel": "Valider",
+  "serverError": "Erreur serveur",
+  "wrongPassword": "Code d'accès erronné, veuillez contacter l'organisateur de cette expérience",
+  "invalidId": "Identifiant invalide"
+}

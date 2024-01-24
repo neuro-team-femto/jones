@@ -1,0 +1,22 @@
+{
+  "title": "Le sourire des sons",
+  "collect": "Merci de renseigner les informations suivantes :",
+  "collectButton": "Valider",
+  "introduction": "Dans cette expérience, vous allez entendre des exemples de prononciations du son /a/, et nous vous demandons de juger laquelle vous semble avoir été prononcée avec le plus de sourire.",
+  "pause": "Nous vous proposons une pause de quelques secondes",
+  "pauseOver": "La pause est terminée, vous pouvez reprendre l'expérience",
+  "resume": "Reprise de l'expérience",
+  "end": "Fin de l'expérience",
+  "thanks": "Merci pour votre participation",
+  "closed": "Expérience déjà effectuée par ce·tte participant·e",
+  "playSounds": "écoute voix 1 & 2",
+  "next": "pour continuer",
+  "space": "espace",
+  "question": "Quelle prononciation est la plus souriante ?",
+  "keyAlt1": "f",
+  "keyAlt2": "j",
+  "labelAlt1": "voice 1",
+  "labelAlt2": "voice 2",
+  "codeAlt1": "voice1",
+  "codeAlt2": "voice2"
+}

@@ -3,86 +3,94 @@ package xp
 import (
 	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"math/rand"
 	"os"
-	"strings"
-	"time"
+	"slices"
 
-	"github.com/creamlab/revcor/helpers"
+	"github.com/neuro-team-femto/revcor/helpers"
 )
 
+type StrMap map[string]string
+
 type Participant struct {
-	Id           string `json:"id"`
-	ExperimentId string `json:"experimentId"`
-	Todo         string `json:"todo"`
-	Age          string `json:"age"`
-	Sex          string `json:"sex"`
+	Id            string   `json:"id"`
+	ExperimentId  string   `json:"experimentId"`
+	Todo          []string `json:"todo"`
+	InfoCollected bool     `json:"infoCollected"`
+	Info          StrMap   `json:"info,omitempty"`
+	// not serialized
+	infoKeys []string
 }
 
-func initParticipantWithInfo(es ExperimentSettings, participantId string) (Participant, error) {
-	infoPath := "state/" + es.Id + "/" + participantId + "/info.json"
-	p := Participant{}
+func getStateFolder(experimentId string) string {
+	return "data/" + experimentId + "/state/"
+}
 
-	if _, silentErr := os.Stat(infoPath); errors.Is(silentErr, os.ErrNotExist) {
-		// not considered an error
-		return p, nil
+func (p *Participant) getStateFile() string {
+	return getStateFolder(p.ExperimentId) + p.Id + ".json"
+}
+
+func (p *Participant) getInfoKeys() []string {
+	if len(p.infoKeys) == 0 {
+		var keys []string
+		for k := range p.Info {
+			keys = append(keys, k)
+		}
+		// ensure order
+		slices.Sort(keys)
+		p.infoKeys = keys
 	}
+	return p.infoKeys
+}
 
-	file, err := ioutil.ReadFile(infoPath)
-	if err != nil {
-		return p, err
+func (p *Participant) getInfoValues() (values []string) {
+	for _, k := range p.getInfoKeys() {
+		values = append(values, p.Info[k])
 	}
-
-	if err = json.Unmarshal([]byte(file), &p); err != nil {
-		return p, err
-	}
-
-	return p, nil
+	return
 }
 
 func truncatedInPlaceShuffle(input []string, max int) []string {
-	rand.Seed(time.Now().UnixNano())
-
+	if len(input) == 0 {
+		return nil
+	}
 	rand.Shuffle(len(input), func(i, j int) {
 		input[i], input[j] = input[j], input[i]
 	})
 	return input[:max]
 }
 
-// if participant state is empty, generate the complete list of sounds that compose a run
-// the length os this state is 2 (two sounds to be compared for each trial) * TrialsPerBlock * BlocksPerXp
+// if participant state is empty, generate the complete list of assets that compose a run
+// the length os this state is:
+// - for NInterval==2 -> (two assets to be compared for each trial) * TrialsPerBlock * BlocksPerXp
+// - for NInterval==1 -> TrialsPerBlock * BlocksPerXp
 func generateTodo(es ExperimentSettings, participantId string) (todos []string) {
-	length := 2 * es.TrialsPerBlock * es.BlocksPerXp
+	intervalFactor := 2
+	if es.NInterval == 1 {
+		intervalFactor = 1
+	}
+	length := intervalFactor * es.TrialsPerBlock * es.BlocksPerXp
 
-	allSoundsPath := "data/" + es.Id + "/sounds"
-	sounds := helpers.FindFilesUnder(allSoundsPath, ".wav")
-	todos = truncatedInPlaceShuffle(sounds, length)
+	allAssetsPath := "data/" + es.Id + "/assets"
+	assets := helpers.FindFilesUnder(allAssetsPath, "."+es.FileExtension)
+	todos = truncatedInPlaceShuffle(assets, length)
 
 	if es.AddRepeatBlock {
 		// duplicate trials from last block
-		repeat := todos[length-(2*es.TrialsPerBlock):]
+		repeat := todos[length-(intervalFactor*es.TrialsPerBlock):]
 		todos = append(todos, repeat...)
 	}
 
 	return
 }
 
-func getParticipantTodo(es ExperimentSettings, participantId string) (todo []string, err error) {
-	folder := "state/" + es.Id + "/" + participantId
-	helpers.EnsureFolder(folder)
-
-	todoPath := folder + "/todo.txt"
-
-	if helpers.PathExists(todoPath) {
-		// load from state
-		todo, err = helpers.ReadFileLines(todoPath)
-	} else {
-		// create and save state
-		todo = generateTodo(es, participantId)
-		state := strings.Join(todo[:], "\n")
-		err = ioutil.WriteFile(todoPath, []byte(state), 0644)
+func (p *Participant) saveState() (err error) {
+	contents, err := json.MarshalIndent(p, "", "  ")
+	if err != nil {
+		return
 	}
+
+	err = os.WriteFile(p.getStateFile(), contents, 0644)
 	return
 }
 
@@ -113,47 +121,45 @@ func IsParticipantValid(experimentId, participantId string) bool {
 	return DoesParticipantExist(experimentId, participantId)
 }
 
-func LoadParticipant(es ExperimentSettings, participantId string) (p Participant, err error) {
-	p, err = initParticipantWithInfo(es, participantId)
-	if err != nil {
-		return
-	}
-	// add fields
-	p.Id = participantId
-	p.ExperimentId = es.Id
-	todo, err := getParticipantTodo(es, participantId)
-	p.Todo = strings.Join(todo, ",")
-	return
-}
+func InitParticipant(es ExperimentSettings, participantId string) (p Participant, err error) {
+	p = Participant{Id: participantId, ExperimentId: es.Id}
 
-func (p *Participant) UpdateInfo(age, sex string) (err error) {
-	// update p
-	p.Age = age
-	p.Sex = sex
+	stateFolder := getStateFolder(es.Id)
+	helpers.EnsureFolder(stateFolder)
 
-	// save to file (filter todo field)
-	toSave := map[string]string{
-		"id":           p.Id,
-		"experimentId": p.ExperimentId,
-		"age":          age,
-		"sex":          sex,
-	}
-	contents, err := json.MarshalIndent(toSave, "", "  ")
-	if err != nil {
-		return
-	}
-
-	infoPath := "state/" + p.ExperimentId + "/" + p.Id + "/info.json"
-	err = ioutil.WriteFile(infoPath, contents, 0644)
-	return
-}
-
-func (p *Participant) UpdateTodo(stimuli1, stimuli2 string) (err error) {
-	todoPath := "state/" + p.ExperimentId + "/" + p.Id + "/todo.txt"
-	if helpers.PathExists(todoPath) {
-		helpers.RemoveOnceFromFile(todoPath, stimuli1, stimuli2)
+	stateFile := p.getStateFile()
+	// check if participant is new (not considered an error!)
+	if _, silentErr := os.Stat(stateFile); errors.Is(silentErr, os.ErrNotExist) {
+		p.InfoCollected = false
+		p.Todo = generateTodo(es, participantId)
+		p.saveState()
+		return p, nil
 	} else {
-		return errors.New("missing-todo")
+		file, err := os.ReadFile(stateFile)
+		if err != nil {
+			return p, err
+		}
+		if err = json.Unmarshal([]byte(file), &p); err != nil {
+			return p, err
+		}
+		return p, nil
 	}
-	return
+
+}
+
+func (p *Participant) UpdateInfo(info StrMap) (err error) {
+	p.Info = info
+	p.InfoCollected = true
+	return p.saveState()
+}
+
+func (p *Participant) UpdateTodo(stimuli string) (err error) {
+	var newTodo []string
+	for _, t := range p.Todo {
+		if t != stimuli {
+			newTodo = append(newTodo, t)
+		}
+	}
+	p.Todo = newTodo
+	return p.saveState()
 }

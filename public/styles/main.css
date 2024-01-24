@@ -12,6 +12,20 @@ body.new-body {
     align-items: center;
 }
 
+body, #jspsych-root {
+    margin: 0px;
+    height: 100%;
+    width: 100%;
+}
+
+#progress {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    color: #888;
+    margin: 8px 12px;
+}
+
 .jspsych-content {
     width: 600px;
     padding: 20px 30px;
@@ -21,6 +35,10 @@ body.new-body {
     background-color: white;
 }
 
+.jspsych-content.image {
+    width: auto;
+}
+
 .jspsych-content:empty {
     display: none;
 }
@@ -28,7 +46,7 @@ body.new-body {
 #jspsych-survey-html-form fieldset {
     display: flex;
     box-sizing: border-box;
-    width: 220px;
+    width: 320px;
     margin: 0 auto;
     border: 0;
 }
@@ -42,9 +60,36 @@ body.new-body {
     font-weight: bold;
 }
 
-.choice {
-    width: 250px;
+.sound-choice {
+    width: 400px;
     margin: -16px auto 0;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
+}
+
+.image-choice {
+    display: flex;
+    justify-content: center;
+}
+
+.image-choice > div:first-child {
+    margin-right: 40px;
+}
+
+.gap {
+    width: 5%;
+}
+
+form fieldset {
+    justify-content: flex-start;
+    width: 100%;
+}
+
+form fieldset label {
+    width: 40%;
+}
+
+form fieldset input {
+    width: 58%;
+    margin-left: 2%;
 }

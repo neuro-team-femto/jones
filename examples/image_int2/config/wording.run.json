@@ -1,0 +1,21 @@
+{
+  "title": "Le sourire des images",
+  "collect": "Merci de renseigner les informations suivantes :",
+  "collectButton": "Valider",
+  "introduction": "Dans cette expérience, vous allez comparer des images : nous vous demandons de juger laquelle vous semble être la plus souriante.",
+  "pause": "Nous vous proposons une pause de quelques secondes",
+  "pauseOver": "La pause est terminée, vous pouvez reprendre l'expérience",
+  "resume": "Reprise de l'expérience",
+  "end": "Fin de l'expérience",
+  "thanks": "Merci pour votre participation",
+  "closed": "Expérience déjà effectuée par ce·tte participant·e",
+  "next": "pour continuer",
+  "space": "espace",
+  "question": "Quelle expression est la plus souriante ?",
+  "keyAlt1": "f",
+  "keyAlt2": "j",
+  "labelAlt1": "gauche",
+  "labelAlt2": "droite",
+  "codeAlt1": "left",
+  "codeAlt2": "right"
+}

@@ -3,7 +3,6 @@ package helpers
 import (
 	"bufio"
 	"bytes"
-	"io/ioutil"
 	"os"
 	"strings"
 )
@@ -23,7 +22,7 @@ func EnsureFolder(path string) error {
 }
 
 func FindFilesUnder(path string, match string) (matches []string) {
-	files, err := ioutil.ReadDir(path)
+	files, err := os.ReadDir(path)
 	if err != nil {
 		return
 	}
@@ -86,6 +85,7 @@ func IsLineInFile(path string, line string) bool {
 
 // remove line1 and line2 from file once
 // (if line1 appears several times, only the first occurrence is removed, same for line2)
+// not currently used
 func RemoveOnceFromFile(path string, line1, line2 string) (err error) {
 	file, err := os.Open(path)
 	if err != nil {

@@ -1,222 +1,158 @@
+import * as timelines from "./timelines";
+
+const state = {};
+
+const shared = {
+  inBlock: (done, trialsPerBlock) => Math.floor(done / trialsPerBlock),
+  updateProgress: () => {
+    document.getElementById("progress").innerHTML = `${
+      state.position.trial + 1
+    }/${state.totalLength}`;
+  },
+  showProgress: () => {
+    if (state.settings.showProgress) {
+      document.getElementById("progress").style = "display: block;";
+    }
+  },
+  hideProgress: () => {
+    document.getElementById("progress").style = "display: none;";
+  },
+};
+
 const pairs = (arr) =>
-    Array.from(
-        new Array(Math.ceil(arr.length / 2)),
-        (_, i) => {
-            const pair = arr.slice(i * 2, i * 2 + 2);
-            return { s1: pair[0], s2: pair[1]};
-        }
-    );
-
-const inBlock = (done, trialsPerBlock) => Math.floor(done / trialsPerBlock);
-
-const SOUND_PREFIX = "../sounds";
+  Array.from(new Array(Math.ceil(arr.length / 2)), (_, i) => {
+    const pair = arr.slice(i * 2, i * 2 + 2);
+    return { asset1: pair[0], asset2: pair[1] };
+  });
 
 // build and run experiment
-export default (state, ws) => {
-    const start = (new Date()).toISOString();
-    const { settings, wording, participant } = state;
-    const todo = participant.todo.split(",");
-    const stimuli = pairs(todo, 2);
-    const blocks = settings.addRepeatBlock ? settings.blocksPerXp + 1 : settings.blocksPerXp;
+export default (props, ws) => {
+  console.log(props)
+  // init
+  const { settings, wording, participant } = props;
+  const jsPsych = initJsPsych({
+    display_element: "jspsych-root",
+    on_finish: function () {
+      state.jsPsych.data.displayData();
+    },
+  });
+  const blocks = settings.addRepeatBlock
+    ? settings.blocksPerXp + 1
+    : settings.blocksPerXp;
 
-    const totalLength = blocks * settings.trialsPerBlock;
-    const remainingLength = todo.length / 2; // 2 sounds per trial
-    const previouslyDoneLength = totalLength - remainingLength; // not 0 if user reconnects (page refresh for instance) 
-
-    const timeline = [];
-    const position = {
-        trial: previouslyDoneLength,
-        block: inBlock(previouslyDoneLength, settings.trialsPerBlock)
-    };
-
-    const SELECT_1_KEY = wording.choice1;
-    const SELECT_2_KEY = wording.choice2;
-
-    // experiment has already be fully run by this participant
-    if(remainingLength === 0) {
-        timeline.push({
-            type: jsPsychHtmlKeyboardResponse,
-            stimulus: `<h3>${wording.closed}</h3>`,
-            choices: "NO_KEYS"
-        });
+  const totalLength = blocks * settings.trialsPerBlock;
+  let stimuli;
+  let remainingLength = 0;
+  if (!!participant.todo) {
+    if (settings.nInterval === 1) {
+      remainingLength = participant.todo.length;
+      stimuli = participant.todo.map((t) => ({ asset: t}));
     } else {
-        // form to collect participant info
-        if(participant.age.length === 0 || participant.sex.length === 0) {
-            timeline.push({
-                type: jsPsychSurveyHtmlForm,
-                preamble: `<p>${wording.collect}</p>`,
-                html: `<p>
-                    <fieldset>
-                        <label>${wording.collectAge}</label>
-                        <input id="age" name="age" type="text" minlength="2" maxlength="3" pattern="[0-9]*" required />
-                    </fieldset>
-                    <fieldset>
-                        <label>${wording.collectSex}</label>
-                        <input name="sex" type="text" maxlength="16" required />
-                    </fieldset>
-                </p>`,
-                autofocus: "age",
-                button_label: wording.collectButton,
-                on_finish: (data) => {
-                    ws.send(
-                        JSON.stringify({
-                            kind: "info",
-                            payload: JSON.stringify(data.response),
-                        })
-                    );
-                }
-            });
-        }
-        // does the participant start for the first time?
-        if(previouslyDoneLength == 0) {
-            timeline.push({
-                type: jsPsychHtmlKeyboardResponse,
-                stimulus: `<p>${wording.introduction}</p>`,
-                prompt: `<p><span class='strong'>[${wording.space}]</span> ${wording.next}</p>`,
-                choices: " "
-            });
-        } else {
-            timeline.push({
-                type: jsPsychHtmlKeyboardResponse,
-                stimulus: `<p>${wording.resume}</p>`,
-                prompt: `<p><span class='strong'>[${wording.space}]</span> ${wording.next}</p>`,
-                choices: " "
-            });
-        }
-
-        const blockStop = {
-            timeline: [
-                {
-                    type: jsPsychHtmlKeyboardResponse,
-                    stimulus: `<p>${wording.pause}</p>`,
-                    prompt: "",
-                    choices: "NO_KEYS",
-                    trial_duration: 4000
-                },
-                {
-                    type: jsPsychHtmlKeyboardResponse,
-                    stimulus: `<p>${wording.pauseOver}</p>`,
-                    prompt: `<p><span class='strong'>[${wording.space}]</span> ${wording.next}</p>`,
-                    choices: " ",
-                }
-            ],
-            conditional_function: function(){
-                const done = jsPsych.data.get().filter({answered: true}).count() + previouslyDoneLength;
-                const blockEnd = (done % settings.trialsPerBlock) === 0;
-                // display if end of block and if not last block
-                return blockEnd && done !== totalLength;
-            }
-        }
-
-        timeline.push({
-            prompt: `<p>[${wording.space}] <span style='font-weight:bold'> ${wording.stimuli}</span></p>
-            <p>${wording.question}</p>
-            <div class='choice'>
-                <div>[f] ${wording.sound1}</div>
-                <div>${wording.sound2} [j]</div>
-            </div>`,
-            timeline: [
-                {
-                    type: jsPsychPreload,
-                    audio: () => {
-                        return [`${SOUND_PREFIX}/${jsPsych.timelineVariable("s1")}`, `${SOUND_PREFIX}/${jsPsych.timelineVariable("s2")}`]
-                    },
-                    show_progress_bar: false,
-                    post_trial_gap: 200
-                },
-                {
-                    type: jsPsychHtmlKeyboardResponse,
-                    stimulus: "",
-                    choices: " ",
-                    prompt: `<p><span style='font-weight:bold'>[${wording.space}]</span> ${wording.stimuli}</p>
-                    <p>${wording.question}</p>
-                    <div class='choice'>
-                        <div>[f] ${wording.sound1}</div>
-                        <div>${wording.sound2} [j]</div>
-                    </div>`,
-                },
-                {
-                    type: jsPsychAudioKeyboardResponse,
-                    stimulus: () => `${SOUND_PREFIX}/${jsPsych.timelineVariable("s1")}`,
-                    choices: "NO_KEYS",
-                    trial_ends_after_audio: true,
-                    response_allowed_while_playing: false,
-                },
-                {
-                    type: jsPsychHtmlKeyboardResponse,
-                    stimulus: "",
-                    choices: "NO_KEYS",
-                    trial_duration: 500,
-                },
-                {
-                    type: jsPsychAudioKeyboardResponse,
-                    stimulus: () => `${SOUND_PREFIX}/${jsPsych.timelineVariable("s2")}`,
-                    choices: "NO_KEYS",
-                    trial_ends_after_audio: true,
-                    response_allowed_while_playing: false,
-                },
-                {
-                    type: jsPsychHtmlKeyboardResponse,
-                    stimulus: "",
-                    choices: [SELECT_1_KEY, SELECT_2_KEY],
-                    prompt: `<p>[${wording.space}] ${wording.stimuli}</p>
-                    <p>${wording.question}</p>
-                    <div class='choice'>
-                        <div><span class='strong'>[f]</span> ${wording.sound1}</div>
-                        <div>${wording.sound2} <span class='strong'>[j]</span></div>
-                    </div>`,
-                    data: {
-                        answered: true
-                    },
-                    on_finish: (data) => {
-                        const result1 = {
-                            trial: position.trial.toString(),                         
-                            block: position.block.toString(),                         
-                            stimulus: jsPsych.timelineVariable("s1"),
-                            order: "0",
-                            response: data.response === SELECT_1_KEY ? "True" : "False",
-                            rt: data.rt.toString(),
-                            date: start
-                        };
-                        const result2 = {
-                            trial: position.trial.toString(),                         
-                            block: position.block.toString(),   
-                            stimulus: jsPsych.timelineVariable("s2"),
-                            order: "1",
-                            response: data.response === SELECT_2_KEY ? "True" : "False",
-                            rt: data.rt.toString(),
-                            date: start
-                        }
-                        position.trial++;
-                        position.block = inBlock(position.trial, settings.trialsPerBlock);
-                        ws.send(
-                            JSON.stringify({
-                                kind: "trial",
-                                payload: JSON.stringify({ result1, result2 }),
-                            })
-                        );
-                    }
-                },
-                blockStop,
-            ],
-            timeline_variables: stimuli
-        });
-
-        timeline.push({
-            type: jsPsychHtmlKeyboardResponse,
-            stimulus: `<h3>${wording.end}</h3>`,
-            prompt: `<p>${wording.thanks}</p>`,
-            choices: "NO_KEYS",
-            on_start: function() {
-                console.log("The experiment is over");
-            }
-        });
+      remainingLength = participant.todo.length / 2;
+      stimuli = pairs(participant.todo, 2);
     }
-    
-    const jsPsych = initJsPsych({
-        on_finish: function() {
-            jsPsych.data.displayData();
-        }
+  }
+  const previouslyDoneLength = totalLength - remainingLength; // not 0 if user reconnects (page refresh for instance)
+  const position = {
+    trial: previouslyDoneLength,
+    block: shared.inBlock(previouslyDoneLength, settings.trialsPerBlock),
+  };
+  const timeline = [];
+
+
+  // shared state
+  state.ws = ws;
+  state.settings = settings;
+  state.wording = wording;
+  state.start = new Date().toISOString();
+  state.stimuli = stimuli;
+  state.jsPsych = jsPsych;
+  state.position = position;
+  state.totalLength = totalLength;
+  state.previouslyDoneLength = previouslyDoneLength;
+
+  // UX and timeline
+
+  shared.updateProgress();
+
+  // experiment has already be fully run by this participant
+  if (remainingLength === 0) {
+    // display closed message
+    timeline.push({
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `<h3>${wording.closed}</h3>`,
+      choices: "NO_KEYS",
     });
-    jsPsych.run(timeline);
-}
+  } else {
+    // form to collect participant info
+    if (
+      settings.collectInfo &&
+      settings.collectInfo.length > 0 &&
+      !participant.infoCollected
+    ) {
+      timeline.push({
+        type: jsPsychSurveyHtmlForm,
+        preamble: `<p>${wording.collect}</p>`,
+        html: () => {
+          const fieldsets = settings.collectInfo
+            .map((i) => {
+              let pattern = !!i.pattern ? `pattern="${i.pattern}"` : "";
+              let min = !!i.min ? `min="${i.min}"` : "";
+              let max = !!i.max ? `max="${i.max}"` : "";
+              let step = !!i.min && !!i.max ? `step="1"` : "";
+              return ` <fieldset>
+              <label>${i.label}</label>
+              <input id="${i.key}" name="${i.key}" type="${i.inputType}" ${pattern} ${min} ${max} ${step} required />
+            </fieldset>`;
+            })
+            .join("");
+          return `<p>${fieldsets}</p>`;
+        },
+        autofocus: "age",
+        button_label: wording.collectButton,
+        on_finish: (data) => {
+          ws.send(
+            JSON.stringify({
+              kind: "info",
+              payload: JSON.stringify(data.response),
+            })
+          );
+        },
+      });
+    }
+    // display welcoming (or welcoming back) message
+    const welcomingMessage =
+      previouslyDoneLength == 0 ? wording.introduction : wording.resume;
+    timeline.push({
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `<p>${welcomingMessage}</p>`,
+      prompt: `<p><span class='strong'>[${wording.space}]</span> ${wording.next}</p>`,
+      choices: " ",
+    });
+
+    // choose main timeline
+    let mainTimeline;
+    if (settings.nInterval === 1) {
+      mainTimeline =
+        settings.kind === "sound" ? timelines.soundsN1 : timelines.imagesN1;
+    } else {
+      mainTimeline =
+        settings.kind === "sound" ? timelines.soundsN2 : timelines.imagesN2;
+    }
+    timeline.push(mainTimeline(state, shared));
+
+    // display end message
+    timeline.push({
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `<h3>${wording.end}</h3>`,
+      prompt: `<p>${wording.thanks}</p>`,
+      choices: "NO_KEYS",
+      on_start: function () {
+        shared.hideProgress();
+        console.log("The experiment is over");
+      },
+    });
+  }
+
+  state.jsPsych.run(timeline);
+};
