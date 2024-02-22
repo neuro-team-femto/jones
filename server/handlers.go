@@ -74,9 +74,14 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 		path := "data/" + experimentId + "/config/new-participants.txt"
 		file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
+			log.Printf("[error] unable to read path '%v' error: %+v\n", path, err)
 			errorLabel = "serverError"
-		} else if _, err := file.WriteString(id + "\n"); err != nil {
-			errorLabel = "serverError"
+		} else {
+			defer file.Close()
+			if _, err := file.WriteString(id + "\n"); err != nil {
+				log.Printf("[error] unable to write to path '%v' error: %+v\n", path, err)
+				errorLabel = "serverError"
+			}
 		}
 	}
 

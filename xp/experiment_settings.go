@@ -2,6 +2,7 @@ package xp
 
 import (
 	"encoding/json"
+	"log"
 	"os"
 
 	"github.com/neuro-team-femto/revcor/helpers"
@@ -53,6 +54,7 @@ func GetExperimentSettings(experimentId string) (e ExperimentSettings, err error
 	settingsPath := "data/" + experimentId + "/config/settings.json"
 	file, err := os.ReadFile(settingsPath)
 	if err != nil {
+		log.Printf("[error][GetExperimentSettings] unable to read path '%v' error: %+v\n", settingsPath, err)
 		return
 	}
 
@@ -95,6 +97,7 @@ func GetExperimentWordingNewMap(experimentId string) (m map[string]string) {
 	wordingNewPath := "data/" + experimentId + "/config/wording.new.json"
 	file, err := os.ReadFile(wordingNewPath)
 	if err != nil {
+		log.Printf("[error][GetExperimentWordingNewMap] unable to read path '%v' error: %+v\n", wordingNewPath, err)
 		return
 	}
 

@@ -36,6 +36,14 @@ const init = () => {
       runExperiment(message.payload, ws);
     }
   };
+
+  ws.onerror = (event) => {
+    console.error("[ws error] ", event);
+  };
+
+  ws.onclose = (event) => {
+    console.log("[ws closed] ", event);
+  };
 };
 
 document.addEventListener("DOMContentLoaded", init);

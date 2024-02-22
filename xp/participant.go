@@ -3,6 +3,7 @@ package xp
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"math/rand"
 	"os"
 	"slices"
@@ -90,7 +91,10 @@ func (p *Participant) saveState() (err error) {
 		return
 	}
 
-	err = os.WriteFile(p.getStateFile(), contents, 0644)
+	if err = os.WriteFile(p.getStateFile(), contents, 0644); err != nil {
+		log.Printf("[error][saveState] unable to write path '%v' error: %+v\n", p.getStateFile(), err)
+		return
+	}
 	return
 }
 
@@ -125,7 +129,11 @@ func InitParticipant(es ExperimentSettings, participantId string) (p Participant
 	p = Participant{Id: participantId, ExperimentId: es.Id}
 
 	stateFolder := getStateFolder(es.Id)
-	helpers.EnsureFolder(stateFolder)
+	err = helpers.EnsureFolder(stateFolder)
+	if err != nil {
+		log.Printf("[error] could not ensure state folder %v: %+v\n", stateFolder, err)
+		return p, err
+	}
 
 	stateFile := p.getStateFile()
 	// check if participant is new (not considered an error!)
@@ -137,6 +145,7 @@ func InitParticipant(es ExperimentSettings, participantId string) (p Participant
 	} else {
 		file, err := os.ReadFile(stateFile)
 		if err != nil {
+			log.Printf("[error][InitParticipant] unable to read path '%v' error: %+v\n", stateFile, err)
 			return p, err
 		}
 		if err = json.Unmarshal([]byte(file), &p); err != nil {

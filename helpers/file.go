@@ -3,19 +3,23 @@ package helpers
 import (
 	"bufio"
 	"bytes"
+	"log"
 	"os"
 	"strings"
 )
 
 func PathExists(path string) bool {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
+	_, err := os.Stat(path)
+	if os.IsNotExist(err) {
 		return false
+	} else if err != nil {
+		log.Printf("[error][PathExists] path '%v' error: %+v\n", path, err)
 	}
 	return true
 }
 
 func EnsureFolder(path string) error {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
+	if !PathExists(path) {
 		return os.MkdirAll(path, 0775)
 	}
 	return nil
@@ -24,6 +28,7 @@ func EnsureFolder(path string) error {
 func FindFilesUnder(path string, match string) (matches []string) {
 	files, err := os.ReadDir(path)
 	if err != nil {
+		log.Printf("[error][FindFilesUnder] path '%v' error: %+v\n", path, err)
 		return
 	}
 	for _, f := range files {
@@ -37,6 +42,7 @@ func FindFilesUnder(path string, match string) (matches []string) {
 func ReadFileLines(path string) (lines []string, err error) {
 	file, err := os.Open(path)
 	if err != nil {
+		log.Printf("[error][ReadFileLines] path '%v' error: %+v\n", path, err)
 		return
 	}
 	defer file.Close()
@@ -52,6 +58,7 @@ func ReadFileLines(path string) (lines []string, err error) {
 func ReadTrimJSON(path string) (json string, err error) {
 	file, err := os.Open(path)
 	if err != nil {
+		log.Printf("[error][ReadTrimJSON] path '%v' error: %+v\n", path, err)
 		return
 	}
 	defer file.Close()
@@ -67,6 +74,7 @@ func ReadTrimJSON(path string) (json string, err error) {
 func IsLineInFile(path string, line string) bool {
 	file, err := os.Open(path)
 	if err != nil {
+		log.Printf("[error][IsLineInFile] path '%v' error: %+v\n", path, err)
 		return false
 	}
 	defer file.Close()
@@ -89,6 +97,7 @@ func IsLineInFile(path string, line string) bool {
 func RemoveOnceFromFile(path string, line1, line2 string) (err error) {
 	file, err := os.Open(path)
 	if err != nil {
+		log.Printf("[error][RemoveOnceFromFile][read] path '%v' error: %+v\n", path, err)
 		return
 	}
 	defer file.Close()
@@ -108,14 +117,18 @@ func RemoveOnceFromFile(path string, line1, line2 string) (err error) {
 		} else {
 			_, err = buf.WriteString(scanner.Text() + "\n")
 			if err != nil {
+				log.Printf("[error][RemoveOnceFromFile][string] path '%v' error: %+v\n", path, err)
 				return
 			}
 		}
 	}
 	if err = scanner.Err(); err != nil {
+		log.Printf("[error][RemoveOnceFromFile][scanner] path '%v' error: %+v\n", path, err)
 		return
 	}
 
-	err = os.WriteFile(path, buf.Bytes(), 0644)
+	if err = os.WriteFile(path, buf.Bytes(), 0644); err != nil {
+		log.Printf("[error][RemoveOnceFromFile][wrote] path '%v' error: %+v\n", path, err)
+	}
 	return
 }

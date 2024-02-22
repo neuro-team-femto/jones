@@ -2,20 +2,21 @@ package xp
 
 import (
 	"bufio"
+	"log"
 	"os"
 	"strings"
 )
 
-func getAssetDefFile(es ExperimentSettings, asset string) (file *os.File, err error) {
-	filterFile := strings.TrimSuffix(asset, "."+es.FileExtension) + ".txt"
-	filterPath := "data/" + es.Id + "/assets/" + filterFile
-	file, err = os.Open(filterPath)
-	return
+func assetDefFilePath(es ExperimentSettings, asset string) string {
+	fileName := strings.TrimSuffix(asset, "."+es.FileExtension) + ".txt"
+	return "data/" + es.Id + "/assets/" + fileName
 }
 
 func getAssetDefHeaders(es ExperimentSettings, asset string) (headers []string, err error) {
-	file, err := getAssetDefFile(es, asset)
+	path := assetDefFilePath(es, asset)
+	file, err := os.Open(path)
 	if err != nil {
+		log.Printf("[error] unable to read path '%v' error: %+v\n", path, err)
 		return
 	}
 	defer file.Close()
@@ -28,8 +29,10 @@ func getAssetDefHeaders(es ExperimentSettings, asset string) (headers []string, 
 }
 
 func getAssetDefAllValues(es ExperimentSettings, asset string) (allValues [][]string, err error) {
-	file, err := getAssetDefFile(es, asset)
+	path := assetDefFilePath(es, asset)
+	file, err := os.Open(path)
 	if err != nil {
+		log.Printf("[error] unable to read path '%v' error: %+v\n", path, err)
 		return
 	}
 	defer file.Close()

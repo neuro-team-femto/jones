@@ -3,6 +3,7 @@ package xp
 import (
 	"encoding/csv"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/neuro-team-femto/revcor/helpers"
@@ -72,8 +73,9 @@ func WriteToCSV(es ExperimentSettings, p Participant, r Result) (err error) {
 		return
 	}
 
-	var records [][]string
 	path := "data/" + p.ExperimentId + "/results/" + p.Id + ".csv"
+
+	var records [][]string
 	if !helpers.PathExists(path) {
 		headers, e := genRecordHeaders(es, p, r)
 		if e != nil {
@@ -87,6 +89,12 @@ func WriteToCSV(es ExperimentSettings, p Participant, r Result) (err error) {
 	}
 
 	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Printf("[error] unable to open path '%v' error: %+v\n", path, err)
+		return
+	}
+	defer file.Close()
+
 	w := csv.NewWriter(file)
 	w.WriteAll(records)
 	return
