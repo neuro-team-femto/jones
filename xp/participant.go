@@ -164,8 +164,12 @@ func (p *Participant) UpdateInfo(info StrMap) (err error) {
 
 func (p *Participant) UpdateTodo(stimuli string) (err error) {
 	var newTodo []string
+	// remove only once
+	removed := false
 	for _, t := range p.Todo {
-		if t != stimuli {
+		if !removed && t == stimuli {
+			removed = true
+		} else {
 			newTodo = append(newTodo, t)
 		}
 	}

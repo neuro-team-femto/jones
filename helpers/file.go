@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"bufio"
-	"bytes"
 	"log"
 	"os"
 	"strings"
@@ -89,46 +88,4 @@ func IsLineInFile(path string, line string) bool {
 	}
 
 	return false
-}
-
-// remove line1 and line2 from file once
-// (if line1 appears several times, only the first occurrence is removed, same for line2)
-// not currently used
-func RemoveOnceFromFile(path string, line1, line2 string) (err error) {
-	file, err := os.Open(path)
-	if err != nil {
-		log.Printf("[error][RemoveOnceFromFile][read] path '%v' error: %+v\n", path, err)
-		return
-	}
-	defer file.Close()
-
-	var bs []byte
-	buf := bytes.NewBuffer(bs)
-
-	scanner := bufio.NewScanner(file)
-	line1RemovedOnce := false
-	line2RemovedOnce := false
-	for scanner.Scan() {
-		currentLine := scanner.Text()
-		if currentLine == line1 && !line1RemovedOnce {
-			line1RemovedOnce = true
-		} else if currentLine == line2 && !line2RemovedOnce {
-			line2RemovedOnce = true
-		} else {
-			_, err = buf.WriteString(scanner.Text() + "\n")
-			if err != nil {
-				log.Printf("[error][RemoveOnceFromFile][string] path '%v' error: %+v\n", path, err)
-				return
-			}
-		}
-	}
-	if err = scanner.Err(); err != nil {
-		log.Printf("[error][RemoveOnceFromFile][scanner] path '%v' error: %+v\n", path, err)
-		return
-	}
-
-	if err = os.WriteFile(path, buf.Bytes(), 0644); err != nil {
-		log.Printf("[error][RemoveOnceFromFile][wrote] path '%v' error: %+v\n", path, err)
-	}
-	return
 }
