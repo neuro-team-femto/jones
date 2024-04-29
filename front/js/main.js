@@ -9,7 +9,7 @@ const looseJSONParse = (str) => {
 };
 
 const init = () => {
-  console.log("[revcor] version 1.1");
+  console.log("[revcor] version 1.2");
 
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
   const pathPrefixhMatch = /(.*?)xp/.exec(window.location.pathname);
@@ -35,14 +35,6 @@ const init = () => {
       message.payload.wording = looseJSONParse(message.payload.wording);
       runExperiment(message.payload, ws);
     }
-  };
-
-  ws.onerror = (event) => {
-    console.error("[ws error] ", event);
-  };
-
-  ws.onclose = (event) => {
-    console.log("[ws closed] ", event);
   };
 };
 

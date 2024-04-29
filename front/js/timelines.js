@@ -34,11 +34,14 @@ const genBlockStop = (state, shared) => {
 }
 
 // higher-order function 
-const trialSubmitN1 = (state, shared) => {
+const trialSubmitN1 = (state, shared, updateActivity) => {
   const { jsPsych, position, settings, start, wording, ws } = state;
   const { inBlock, updateProgress } = shared;
   
   return (data) => {
+      // may be called when websocket is closed, this check is done to prevent a JS error
+      if (!data.rt) return;
+
     const result = {
       trial: position.trial.toString(),
       block: position.block.toString(),
@@ -58,14 +61,18 @@ const trialSubmitN1 = (state, shared) => {
         payload: JSON.stringify(result),
       })
     );
+    updateActivity();
   }
 };
 
-const trialSubmitN2 = (state, shared) => {
+const trialSubmitN2 = (state, shared, updateActivity) => {
   const { jsPsych, position, settings, start, wording, ws } = state;
   const { inBlock, updateProgress } = shared;
   
   return (data) => {
+    // may be called when websocket is closed, this check is done to prevent a JS error
+    if (!data.rt) return;
+
     const result1 = {
       trial: position.trial.toString(),
       block: position.block.toString(),
@@ -100,13 +107,14 @@ const trialSubmitN2 = (state, shared) => {
         payload: JSON.stringify(result2),
       })
     );
+    updateActivity();
   }
 };
 
 
 // API
 
-export const soundsN1 = (state, shared) => {
+export const soundsN1 = (state, shared, updateActivity) => {
   const { jsPsych, wording, stimuli } = state;
   const { showProgress } = shared;
 
@@ -163,7 +171,7 @@ export const soundsN1 = (state, shared) => {
         data: {
           answered: true,
         },
-        on_finish: trialSubmitN1(state, shared),
+        on_finish: trialSubmitN1(state, shared, updateActivity),
       },
       blockStop,
     ],
@@ -171,7 +179,7 @@ export const soundsN1 = (state, shared) => {
   };
 }
 
-export const soundsN2 = (state, shared) => {
+export const soundsN2 = (state, shared, updateActivity) => {
   const { jsPsych, wording, stimuli } = state;
   const { showProgress } = shared;
 
@@ -242,7 +250,7 @@ export const soundsN2 = (state, shared) => {
         data: {
           answered: true,
         },
-        on_finish: trialSubmitN2(state, shared),
+        on_finish: trialSubmitN2(state, shared, updateActivity),
       },
       blockStop,
     ],
@@ -250,11 +258,9 @@ export const soundsN2 = (state, shared) => {
   };
 };
 
-export const imagesN1 = (state, shared) => {
+export const imagesN1 = (state, shared, updateActivity) => {
   const { jsPsych, settings, wording, stimuli } = state;
   const { showProgress } = shared;
-
-  console.log(settings);
 
   const blockStop = genBlockStop(state, shared);
   return {
@@ -298,7 +304,7 @@ export const imagesN1 = (state, shared) => {
         data: {
           answered: true,
         },
-        on_finish: trialSubmitN1(state, shared),
+        on_finish: trialSubmitN1(state, shared, updateActivity),
       },
       blockStop,
     ],
@@ -306,7 +312,7 @@ export const imagesN1 = (state, shared) => {
   };
 }
 
-export const imagesN2 = (state, shared) => {
+export const imagesN2 = (state, shared, updateActivity) => {
   const { jsPsych, settings, wording, stimuli } = state;
   const { showProgress } = shared;
 
@@ -358,7 +364,7 @@ export const imagesN2 = (state, shared) => {
         data: {
           answered: true,
         },
-        on_finish: trialSubmitN2(state, shared),
+        on_finish: trialSubmitN2(state, shared, updateActivity),
       },
       blockStop,
     ],

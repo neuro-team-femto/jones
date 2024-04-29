@@ -9,6 +9,7 @@
   "end": "Fin de l'expérience",
   "thanks": "Merci pour votre participation",
   "closed": "Expérience déjà effectuée par ce·tte participant·e",
+  "connectionError": "Connexion perdue, veuillez rafraîchir la page",
   "playSounds": "écoute extrait",
   "next": "pour continuer",
   "space": "espace",

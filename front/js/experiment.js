@@ -1,6 +1,32 @@
 import * as timelines from "./timelines";
 
+const PREVENT_WS_CLOSE_MAX_IDLING = 10 * 60 * 1000; // x minutes in milliseconds
+const PING_PERIOD = 55 * 1000; // x seconds in milliseconds
+
 const state = {};
+
+const updateActivity = () => {
+  if (!state.intervalId) initPingInterval(); // start anti idling
+
+  state.lastInteraction = new Date();
+}
+
+const isActive = () => {
+  return (new Date() - state.lastInteraction) < PREVENT_WS_CLOSE_MAX_IDLING;
+}
+
+const initPingInterval = () => {
+  state.intervalId = setInterval(() => {
+    if (isActive()) { // prevent websocket close server-side for a bit
+      state.ws.readyState === WebSocket.OPEN && state.ws.send( JSON.stringify({
+        kind: "ping",
+      }));
+    } else { // stop preventing websocket close after PREVENT_WS_CLOSE_MAX_IDLING
+      clearInterval(state.intervalId);
+      delete(state.intervalId);
+    }
+  }, PING_PERIOD);
+}
 
 const shared = {
   inBlock: (done, trialsPerBlock) => Math.floor(done / trialsPerBlock),
@@ -27,9 +53,10 @@ const pairs = (arr) =>
 
 // build and run experiment
 export default (props, ws) => {
-  console.log(props)
   // init
   const { settings, wording, participant } = props;
+
+  // jspsych
   const jsPsych = initJsPsych({
     display_element: "jspsych-root",
     on_finish: function () {
@@ -59,6 +86,16 @@ export default (props, ws) => {
   };
   const timeline = [];
 
+  // ws
+  ws.onerror = (event) => {
+    console.error("[ws error] ", event);
+    jsPsych.endExperiment(wording.connectionError);
+  };
+  
+  ws.onclose = (event) => {
+    console.log("[ws closed] ", event);
+    jsPsych.endExperiment(wording.connectionError);
+  };
 
   // shared state
   state.ws = ws;
@@ -70,6 +107,7 @@ export default (props, ws) => {
   state.position = position;
   state.totalLength = totalLength;
   state.previouslyDoneLength = previouslyDoneLength;
+  updateActivity();
 
   // UX and timeline
 
@@ -111,12 +149,13 @@ export default (props, ws) => {
         autofocus: "age",
         button_label: wording.collectButton,
         on_finish: (data) => {
-          ws.send(
+          ws.readyState === WebSocket.OPEN && ws.send(
             JSON.stringify({
               kind: "info",
               payload: JSON.stringify(data.response),
             })
           );
+          updateActivity();
         },
       });
     }
@@ -128,6 +167,7 @@ export default (props, ws) => {
       stimulus: `<p>${welcomingMessage}</p>`,
       prompt: `<p><span class='strong'>[${wording.space}]</span> ${wording.next}</p>`,
       choices: " ",
+      on_finish: updateActivity
     });
 
     // choose main timeline
@@ -139,7 +179,7 @@ export default (props, ws) => {
       mainTimeline =
         settings.kind === "sound" ? timelines.soundsN2 : timelines.imagesN2;
     }
-    timeline.push(mainTimeline(state, shared));
+    timeline.push(mainTimeline(state, shared, updateActivity));
 
     // display end message
     timeline.push({

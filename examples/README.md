@@ -95,6 +95,7 @@ Let's review the meaning of each property:
     "end": "End of the experiment",
     "thanks": "Thanks for your participation",
     "closed": "Experiment already done",
+    "connectionError": "Connection closed, please refresh the webpage",
     "playSounds": "listening to voices 1 & 2",
     "next": "next",
     "space": "space",

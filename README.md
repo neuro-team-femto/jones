@@ -84,11 +84,25 @@ go run main.go -APP_MODE BUILD_FRONT
 
 Create a new folder in `data/` and follow the instructions in `examples/README.md`.
 
-## Additional setup
+## Proxy setup
 
-You may prefer to serve `revcor` behind a HTTP proxy, for instance as an nginx server block that forwards to the declared `APP_PORT`.
+You may prefer to serve `revcor` behind a HTTP proxy, for instance proxying a given public sub/domain to the declared `APP_PORT` of the locally running `revcor`.
 
-You may also manage `revcor` execution with [Supervisor](http://supervisord.org/) or [pm2](https://pm2.keymetrics.io/docs/usage/quick-start/). Here is a configuration example for Supervisor:
+In that case you need to allow for WebSockets upgrade and to fine-tune the default WebSockets timeout (taking into consideration possible idle periods of participants) at the proxy side.
+
+For instance if you use nginx, you may consider the following directives:
+
+```
+proxy_set_header Upgrade $http_upgrade;
+proxy_set_header Connection $connection_upgrade;
+# increase default timeout
+proxy_send_timeout 10m;
+proxy_read_timeout 10m;
+```
+
+## Process control
+
+You may manage `revcor` execution with [Supervisor](http://supervisord.org/) or [pm2](https://pm2.keymetrics.io/docs/usage/quick-start/) (for instance for auto-restarts). Here is a configuration example for Supervisor:
 
 ```
 [program:revcor]

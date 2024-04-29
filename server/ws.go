@@ -58,6 +58,42 @@ func sendWithPayload(conn *websocket.Conn, kind string, payload outData) (err er
 	return
 }
 
+func waitForInfo(conn *websocket.Conn, p xp.Participant) {
+	for {
+		msg := messageIn{}
+		err := conn.ReadJSON(&msg)
+
+		if err != nil {
+			sendAndLogError(conn, err, "error-info-missing")
+			return
+		}
+
+		if msg.Kind == "info" {
+			var info xp.StrMap
+			err = json.Unmarshal([]byte(msg.Payload), &info)
+
+			if err != nil {
+				sendAndLogError(conn, err, "error-info-invalid")
+				return
+			}
+
+			err = p.UpdateInfo(info)
+			if err != nil {
+				sendAndLogError(conn, err, "error-info-save")
+				return
+			}
+			// success path
+			return
+		} else if msg.Kind == "ping" {
+			// no effect path (keep-alive ping): continue looping
+		} else {
+			// error path: Kind must be either "ping" (no effect) or "info"
+			sendAndLogError(conn, err, "error-info-missing")
+			return
+		}
+	}
+}
+
 func (pc participantConn) loop() {
 	for {
 		msg := messageIn{}
@@ -92,6 +128,9 @@ func (pc participantConn) loop() {
 				return
 			}
 		}
+		// else if msg.Kind == "ping" {
+		// 	// keep-alive ping
+		// }
 	}
 }
 
@@ -148,25 +187,7 @@ func wsHandler(conn *websocket.Conn) {
 
 	// 3. if participant info is empty, the next received message *must* be a "info"
 	if es.CollectsInfo() && !p.InfoCollected {
-		infoMsg := messageIn{}
-		err := conn.ReadJSON(&infoMsg)
-		if err != nil || infoMsg.Kind != "info" {
-			sendAndLogError(conn, err, "error-info-missing")
-			return
-		}
-
-		var info xp.StrMap
-		err = json.Unmarshal([]byte(infoMsg.Payload), &info)
-		if err != nil {
-			sendAndLogError(conn, err, "error-info-invalid")
-			return
-		}
-
-		err = p.UpdateInfo(info)
-		if err != nil {
-			sendAndLogError(conn, err, "error-info-save")
-			return
-		}
+		waitForInfo(conn, p)
 	}
 
 	// 4. client/server initialization is over, now we loop on "result" messages
