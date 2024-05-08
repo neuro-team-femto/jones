@@ -6,8 +6,8 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
-	"github.com/neuro-team-femto/revcor/config"
-	"github.com/neuro-team-femto/revcor/helpers"
+	"github.com/neuro-team-femto/jones/config"
+	"github.com/neuro-team-femto/jones/helpers"
 )
 
 var (

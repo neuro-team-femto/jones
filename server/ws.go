@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/gorilla/websocket"
-	"github.com/neuro-team-femto/revcor/xp"
+	"github.com/neuro-team-femto/jones/xp"
 )
 
 type participantConn struct {

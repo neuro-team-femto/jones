@@ -9,7 +9,7 @@ const looseJSONParse = (str) => {
 };
 
 const init = () => {
-  console.log("[revcor] version 1.2");
+  console.log("[jones] version 1.2");
 
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
   const pathPrefixhMatch = /(.*?)xp/.exec(window.location.pathname);

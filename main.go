@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/neuro-team-femto/revcor/config"
-	"github.com/neuro-team-femto/revcor/front"
-	"github.com/neuro-team-femto/revcor/helpers"
-	"github.com/neuro-team-femto/revcor/server"
+	"github.com/neuro-team-femto/jones/config"
+	"github.com/neuro-team-femto/jones/front"
+	"github.com/neuro-team-femto/jones/helpers"
+	"github.com/neuro-team-femto/jones/server"
 )
 
 func init() {

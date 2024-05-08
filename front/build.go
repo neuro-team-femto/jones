@@ -4,8 +4,8 @@ import (
 	"log"
 
 	"github.com/evanw/esbuild/pkg/api"
-	"github.com/neuro-team-femto/revcor/config"
-	_ "github.com/neuro-team-femto/revcor/helpers"
+	"github.com/neuro-team-femto/jones/config"
+	_ "github.com/neuro-team-femto/jones/helpers"
 )
 
 // API

@@ -1,4 +1,4 @@
-module github.com/neuro-team-femto/revcor
+module github.com/neuro-team-femto/jones
 
 go 1.21
 

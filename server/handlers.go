@@ -8,8 +8,8 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
-	"github.com/neuro-team-femto/revcor/helpers"
-	"github.com/neuro-team-femto/revcor/xp"
+	"github.com/neuro-team-femto/jones/helpers"
+	"github.com/neuro-team-femto/jones/xp"
 )
 
 // handle incoming websockets

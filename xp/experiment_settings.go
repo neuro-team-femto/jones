@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/neuro-team-femto/revcor/helpers"
+	"github.com/neuro-team-femto/jones/helpers"
 )
 
 type Field struct {

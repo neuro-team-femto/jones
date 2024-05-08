@@ -8,7 +8,7 @@ import (
 	"os"
 	"slices"
 
-	"github.com/neuro-team-femto/revcor/helpers"
+	"github.com/neuro-team-femto/jones/helpers"
 )
 
 type StrMap map[string]string

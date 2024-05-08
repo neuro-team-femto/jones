@@ -4,7 +4,7 @@ To create a new experiment, follow these instructions:
 
 1. Choose an experience ID using this character set: `a-zA-Z0-9-_`. From now on, let say you chose `experiment_3`.
 
-If your revcor app is reachable at `https://example.com`, the root path of the experiment is `https://example.com/xp/experiment_3/`
+If your JONES app is reachable at `https://example.com`, the root path of the experiment is `https://example.com/xp/experiment_3/`
 
 2. Create the following folders and files in `data`:
 
