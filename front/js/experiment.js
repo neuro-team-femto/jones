@@ -89,12 +89,12 @@ export default (props, ws) => {
   // ws
   ws.onerror = (event) => {
     console.error("[ws error] ", event);
-    jsPsych.endExperiment(wording.connectionError);
+    jsPsych.endExperiment(wording.connectionError || "Connexion perdue, veuillez rafraîchir la page");
   };
   
   ws.onclose = (event) => {
     console.log("[ws closed] ", event);
-    jsPsych.endExperiment(wording.connectionError);
+    jsPsych.endExperiment(wording.connectionError || "Connexion perdue, veuillez rafraîchir la page");
   };
 
   // shared state
