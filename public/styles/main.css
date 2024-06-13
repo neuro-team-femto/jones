@@ -35,6 +35,10 @@ body, #jspsych-root {
     background-color: white;
 }
 
+.jspsych-content.video {
+    width: 100vh;
+}
+
 .jspsych-content.image {
     width: auto;
 }
@@ -58,6 +62,12 @@ body, #jspsych-root {
 
 .strong {
     font-weight: bold;
+}
+
+.video-choice {
+    display: flex;
+    column-gap: 20px;
+    justify-content: center;
 }
 
 .sound-choice {
