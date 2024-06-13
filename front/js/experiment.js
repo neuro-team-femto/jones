@@ -162,19 +162,34 @@ export default (props, ws) => {
     // display welcoming (or welcoming back) message
     const welcomingMessage =
       previouslyDoneLength == 0 ? wording.introduction : wording.resume;
-    timeline.push({
-      type: jsPsychHtmlKeyboardResponse,
-      stimulus: `<p>${welcomingMessage}</p>`,
-      prompt: `<p><span class='strong'>[${wording.space}]</span> ${wording.next}</p>`,
-      choices: " ",
-      on_finish: updateActivity
-    });
+  
+    if ((typeof(wording.introduction) === "string") || (wording.introduction.length === 1)) {
+      timeline.push({
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: `<p>${welcomingMessage}</p>`,
+        prompt: `<p><span class='strong'>[${wording.space}]</span> ${wording.next}</p>`,
+        choices: " ",
+        on_finish: updateActivity
+      })  
+    // multi-page instructions
+    // if introduction field in wording.run is list with multiple elements, show one-by-one
+    } else {   
+      wording.introduction.forEach((i) => {
+        timeline.push({
+          type: jsPsychHtmlKeyboardResponse,
+          stimulus: `<p>${i}</p>`,
+          prompt: `<p><span class='strong'>[${wording.space}]</span> ${wording.next}</p>`,
+          choices: " ",
+          on_finish: updateActivity
+        })
+      })
+    }
 
     // choose main timeline
     let mainTimeline;
     if (settings.nInterval === 1) {
       mainTimeline =
-        settings.kind === "sound" ? timelines.soundsN1 : timelines.imagesN1;
+        settings.kind === "video" ? timelines.videosN1 : settings.kind === "sound" ? timelines.soundsN1 : timelines.imagesN1;
     } else {
       mainTimeline =
         settings.kind === "sound" ? timelines.soundsN2 : timelines.imagesN2;
