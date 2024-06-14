@@ -36,7 +36,8 @@ body, #jspsych-root {
 }
 
 .jspsych-content.video {
-    width: 100vh;
+    width: 100vw;
+    height: 100vh;
 }
 
 .jspsych-content.image {

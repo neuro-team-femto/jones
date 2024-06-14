@@ -145,7 +145,7 @@ export const videosN1 = (state, shared, updateActivity) => {
           <div><span class='choice'>[${wording.keyAlt1}] </span>${wording.labelAlt1}</div>
           <div><span class='choice'>[${wording.keyAlt2}] </span>${wording.labelAlt2}</div>
         </div>`,
-        width: "100%",
+        width: "80%",
         autoplay: false,
         controls: false,
         response_ends_trial: true,
