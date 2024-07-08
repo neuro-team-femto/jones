@@ -8,6 +8,7 @@
     <script src="{{.webPrefix}}/scripts/jspsych/plugin-survey-html-form.js"></script>
     <script src="{{.webPrefix}}/scripts/jspsych/plugin-html-keyboard-response.js"></script>
     <script src="{{.webPrefix}}/scripts/jspsych/plugin-audio-keyboard-response.js"></script>
+    <script src="{{.webPrefix}}/scripts/jspsych/plugin-video-keyboard-response.js"></script>
     <script src="{{.webPrefix}}/scripts/main.js"></script>
     <link rel="stylesheet" href="{{.webPrefix}}/styles/jspsych.css">
     <link rel="stylesheet" href="{{.webPrefix}}/styles/main.css">

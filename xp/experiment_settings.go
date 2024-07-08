@@ -63,7 +63,7 @@ func GetExperimentSettings(experimentId string) (e ExperimentSettings, err error
 		return
 	}
 	e.Id = experimentId
-	if e.Kind != "image" {
+	if (e.Kind != "image") && (e.Kind != "video") {
 		e.Kind = "sound"
 	}
 	if e.NInterval != 1 {
@@ -72,8 +72,10 @@ func GetExperimentSettings(experimentId string) (e ExperimentSettings, err error
 	if len(e.FileExtension) == 0 {
 		if e.Kind == "sound" {
 			e.FileExtension = "wav"
-		} else {
+		} else if e.Kind == "image" {
 			e.FileExtension = "png"
+		} else if e.Kind == "video" {
+			e.FileExtension = "mp4"
 		}
 	}
 	return

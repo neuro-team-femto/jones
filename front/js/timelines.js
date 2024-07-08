@@ -114,6 +114,56 @@ const trialSubmitN2 = (state, shared, updateActivity) => {
 
 // API
 
+export const videosN1 = (state, shared, updateActivity) => {
+  const { jsPsych, wording, stimuli } = state;
+  const { showProgress } = shared;
+
+  const blockStop = genBlockStop(state, shared);
+  return {
+    // default values
+    css_classes: ["video"],
+    // actual timeline
+    timeline: [
+      {
+        type: jsPsychPreload,
+        video: () => {
+          return [
+            `${ASSET_PREFIX}${jsPsych.timelineVariable("asset")}`,
+          ];
+        },
+        show_progress_bar: false,
+        post_trial_gap: 200,
+        on_start: showProgress,
+      },
+      {
+        type: jsPsychVideoKeyboardResponse,
+        stimulus: [() => "".concat(ASSET_PREFIX).concat(jsPsych.timelineVariable("asset"))],
+        choices: [wording.keyAlt1, wording.keyAlt2],
+        prompt: `<p><span id='play_prompt' style='font-weight:bold'>[${wording.space}]</span> ${wording.play}</p>
+        <p class='question'>${wording.question}</p>
+        <div class='video-choice'>
+          <div><span class='choice'>[${wording.keyAlt1}] </span>${wording.labelAlt1}</div>
+          <div><span class='choice'>[${wording.keyAlt2}] </span>${wording.labelAlt2}</div>
+        </div>`,
+        width: "80%",
+        autoplay: false,
+        controls: false,
+        response_ends_trial: true,
+        trial_ends_after_video: false,
+        response_allowed_while_playing: false,
+        change_prompt: true,
+        play_key: " ",
+        data: {
+          answered: true
+        },
+        on_finish: trialSubmitN1(state, shared, updateActivity)
+      },
+      blockStop,
+    ],
+    timeline_variables: stimuli,
+  };
+};
+
 export const soundsN1 = (state, shared, updateActivity) => {
   const { jsPsych, wording, stimuli } = state;
   const { showProgress } = shared;
